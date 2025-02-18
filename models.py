@@ -1,14 +1,141 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy.orm import relationship,validates
+from datetime import datetime, timezone
+import re
 
 db = SQLAlchemy()
 
-class Bird(db.Model, SerializerMixin):
-    __tablename__ = 'birds'
+
+class User(db.Model):
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    species = db.Column(db.String)
+    username = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # 'customer' or 'owner'
 
-    def __repr__(self):
-        return f'<Bird {self.name} | Species: {self.species}>'
+    outlets = relationship('Outlet', backref='owner', lazy=True)
+    orders = relationship('Order', backref='customer', lazy=True)
+    bookings = relationship('TableBooking', backref='customer', lazy=True)
+
+    @validates('email')
+    def validate_email(self, key, email):
+        if not re.match(r'^\S+@\S+\.\S+$', email):
+            raise ValueError("Invalid email format")
+        return email
+
+    @validates('role')
+    def validate_role(self, key, role):
+        valid_roles = ['customer', 'owner']
+        if role not in valid_roles:
+            raise ValueError(f"Invalid role. Must be one of {valid_roles}")
+        return role
+
+class OwnerMenu(db.Model):
+    __tablename__ = 'ownermenu'
+
+    id = db.Column(db.Integer, primary_key=True)
+    owner_name = db.Column(db.String(100), nullable=False)
+    outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
+
+    # Relationship: One OwnerMenu can have multiple MenuItems
+    menu_items = relationship('MenuItem', back_populates='owner_menu', cascade="all, delete-orphan")
+
+class Outlet(db.Model):
+    __tablename__ = 'outlet'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    menu_items = relationship('MenuItem', backref='outlet', lazy=True)
+    orders = relationship('Order', backref='outlet', lazy=True)
+
+
+class MenuItem(db.Model):
+    __tablename__ = 'menuitem'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    cuisine = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    waiting = db.Column(db.Integer, nullable=False)
+    outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
+
+    orders = relationship('OrderItem', back_populates='menu_item')
+    owner_menu = relationship('OwnerMenu', back_populates='menu_items')
+
+    @validates('price')
+    def validate_price(self, key, price):
+        if price <= 0:
+            raise ValueError("Price must be a positive number")
+        return price
+
+
+class Order(db.Model):
+    __tablename__ = 'order'
+
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
+    status = db.Column(db.String(20), default="Pending")
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    table_number = db.Column(db.Integer, nullable=False)
+
+    order_items = relationship('OrderItem', back_populates='order')
+
+    @validates('status')
+    def validate_status(self, key, status):
+        valid_statuses = ["Pending", "Confirmed", "Completed", "Cancelled"]
+        if status not in valid_statuses:
+            raise ValueError(f"Invalid status. Must be one of {valid_statuses}")
+        return status
+
+    @validates('table_number')
+    def validate_table_number(self, key, table_number):
+        if table_number < 1:
+            raise ValueError("Table number must be a positive integer")
+        return table_number
+
+
+class OrderItem(db.Model):
+    __tablename__ = 'orderitem'
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    menu_item_id = db.Column(db.Integer, db.ForeignKey('menuitem.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+
+    order = relationship('Order', back_populates='order_items')
+    menu_item = relationship('MenuItem', back_populates='orders')
+
+    @validates('quantity')
+    def validate_quantity(self, key, quantity):
+        if quantity < 1:
+            raise ValueError("Quantity must be at least 1")
+        return quantity
+
+
+class TableBooking(db.Model):
+    __tablename__ = 'tablebooking'
+
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    table_number = db.Column(db.Integer, nullable=False)
+    booking_time = db.Column(db.DateTime, nullable=False)
+    datetime = db.Column(db.DateTime, default=datetime.now(timezone.utc))  # Timestamp for when the booking was created
+
+    @validates('table_number')
+    def validate_table_number(self, key, table_number):
+        if table_number < 1:
+            raise ValueError("Table number must be a positive integer")
+        return table_number
+
+    @validates('booking_time')
+    def validate_booking_time(self, key, booking_time):
+        if booking_time <= datetime.now(timezone.utc):
+            raise ValueError("Booking time must be in the future")
+        return booking_time
