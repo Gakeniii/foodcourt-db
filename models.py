@@ -39,9 +39,11 @@ class OwnerMenu(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     owner_name = db.Column(db.String(100), nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
+    menu_item = db.Column(db.Integer, db.ForeignKey('menuitem.id'), nullable=False)
 
     # Relationship: One OwnerMenu can have multiple MenuItems
-    menu_items = relationship('MenuItem', back_populates='owner_menu', cascade="all, delete-orphan")
+    menu_items = relationship('MenuItem', back_populates='owner_menu', cascade="all")
+
 
 class Outlet(db.Model):
     __tablename__ = 'outlet'
@@ -50,7 +52,7 @@ class Outlet(db.Model):
     name = db.Column(db.String(100), unique=True, nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    menu_items = relationship('MenuItem', backref='outlet', lazy=True)
+    menu_items = relationship('MenuItem', back_populates='outlet', lazy=True)
     orders = relationship('Order', backref='outlet', lazy=True)
 
 
@@ -60,12 +62,13 @@ class MenuItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     image_url = db.Column(db.String, nullable=True)
-    price = db.Column(db.Float, nullable=False)
+    price = db.Column(db.String, nullable=False)
     cuisine = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     waiting = db.Column(db.Integer, nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
 
+    outlet = db.relationship('Outlet', back_populates='menu_items')
     orders = relationship('OrderItem', back_populates='menu_item')
     owner_menu = relationship('OwnerMenu', back_populates='menu_items')
 
@@ -104,11 +107,13 @@ class Order(db.Model):
 
 class OrderItem(db.Model):
     __tablename__ = 'orderitem'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menuitem.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    payment_method = db.Column(db.String, nullable=False)
 
     order = relationship('Order', back_populates='order_items')
     menu_item = relationship('MenuItem', back_populates='orders')
@@ -140,3 +145,4 @@ class TableBooking(db.Model):
         if booking_time <= datetime.now(timezone.utc):
             raise ValueError("Booking time must be in the future")
         return booking_time
+    
