@@ -14,7 +14,7 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(20), nullable=False)  # 'customer' or 'owner'
+    role = db.Column(db.String(20), nullable=False)  
 
     outlets = relationship('Outlet', backref='owner', lazy=True)
     orders = relationship('Order', backref='customer', lazy=True)
@@ -59,6 +59,7 @@ class MenuItem(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    image_url = db.Column(db.String, nullable=True)
     price = db.Column(db.Float, nullable=False)
     cuisine = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
