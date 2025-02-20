@@ -90,6 +90,7 @@ class UserResource(Resource):
                 ]
             })
 
+
     def post(self):
         data = request.get_json()
         user = User(**data)
