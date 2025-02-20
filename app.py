@@ -55,6 +55,29 @@ def register_user():
 
     return jsonify({"message": "User registered successfully", "user_id": new_user.id}), 201
 
+# Login route that generates JWT token
+@app.route('/login', methods=['POST'])
+def login_user():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    # Convert pass to str before login
+    password = str(password)
+
+    # Find user by username
+    user = User.query.filter_by(username=username).first()
+    
+    if not user or not bcrypt.check_password_hash(user.password, password):
+        return jsonify({"error": "Invalid username or password"}), 401
+
+    # Create JWT token with user.id as string
+    access_token = create_access_token(identity=str(user.id), fresh=True, expires_delta=timedelta(hours=1))  # token valid for 1 hour
+    return jsonify({
+        'message': 'Login successful',
+        'access_token': access_token
+    }), 200
+
 # Routes for Order
 @app.route('/orders', methods=['POST'])
 def create_order():
