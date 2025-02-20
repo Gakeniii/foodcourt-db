@@ -29,6 +29,32 @@ jwt = JWTManager(app)
 # Register the Bcrypt instance with the Flask app
 bcrypt.init_app(app)
 
+# User registration form
+@app.route('/register', methods=['POST'])
+def register_user():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role', 'customer')  # Default role is 'customer'
+
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({"error": "Username already exists"}), 400
+
+    # Ensure password is a string
+    password = str(password)
+
+    # Hash the password before storing
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    new_user = User(username=username, password=hashed_password, role=role)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "User registered successfully", "user_id": new_user.id}), 201
+
 # Routes for Order
 @app.route('/orders', methods=['POST'])
 def create_order():
