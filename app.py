@@ -106,6 +106,20 @@ def create_outlet():
 
     return jsonify({"message": "Outlet created successfully", "outlet_id": new_outlet.id}), 201
 
+@app.route('/outlets/update/<int:outlet_id>', methods=['PUT'])
+def update_outlet(outlet_id):
+    data = request.json
+    outlet = Outlet.query.get(outlet_id)
+
+    if not outlet:
+        return jsonify({"error": "Outlet not found"}), 404
+
+    outlet.name = data.get('name', outlet.name)
+    outlet.cuisine_type = data.get('cuisine_type', outlet.cuisine_type)
+    db.session.commit()
+
+    return jsonify({"message": "Outlet updated successfully"}), 200
+
 # Routes for Order
 @app.route('/orders', methods=['POST'])
 def create_order():
