@@ -78,6 +78,34 @@ def login_user():
         'access_token': access_token
     }), 200
 
+# Outlet Routes
+@app.route('/outlets', methods=['POST'])
+@jwt_required()  # This ensures that the user is authenticated
+def create_outlet():
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()  # This gets the user ID from the JWT token
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if user.role != 'true':
+        return jsonify({"error": "You do not have the required permissions to create an outlet"}), 403
+
+    data = request.json
+    name = data.get('name')
+    cuisine_type = data.get('cuisine_type')
+
+    if not name or not cuisine_type:
+        return jsonify({"error": "Name and cuisine type are required"}), 400
+
+    # Create the outlet with the correct owner_id (as integer)
+    new_outlet = Outlet(name=name, cuisine_type=cuisine_type, owner_id=current_user_id)
+    db.session.add(new_outlet)
+    db.session.commit()
+
+    return jsonify({"message": "Outlet created successfully", "outlet_id": new_outlet.id}), 201
+
 # Routes for Order
 @app.route('/orders', methods=['POST'])
 def create_order():
