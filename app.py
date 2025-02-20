@@ -1,54 +1,34 @@
 #!/usr/bin/env python3
-
-import os
-
-from flask import Flask, request, jsonify, make_response
-
-
-
 from flask import Flask, request, jsonify
+from models import db, User, Outlet, MenuItem, Order, OrderItem, Table, Reservation
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-from flask import Flask, jsonify, make_response
-
 from flask_migrate import Migrate
+from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jwt
 from flask_cors import CORS
 from flask_restful import Api, Resource
-from dotenv import load_dotenv
-from sqlalchemy import MetaData
-from datetime import datetime, timezone
-from flask_socketio import SocketIO
-
-load_dotenv()
-
-from models import db, User, OwnerMenu, Outlet, MenuItem, Order, OrderItem, TableBooking
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
+
+# Database configuration
+app.config['SECRET_KEY'] = 'zdnksdghiosuvuksdhbvsmhdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
 
-metadata = MetaData(naming_convention={
-    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-})
-
-migrate = Migrate(app, db)
+# Initialize the app with db
 db.init_app(app)
 
+# Initialize extensions
+migrate = Migrate(app, db)
+bcrypt = Bcrypt()
 api = Api(app)
+CORS(app, resources={r"*": {"origins": "*"}})
+jwt = JWTManager(app)
 
-CORS(app,  resources={r"/api/*": {"origins": "*"}})
-socketio = SocketIO(app, cors_allowed_origins="*")
-
-class UserResource(Resource):
-    def get(self, user_id=None):
-        if user_id is None:
-            users = User.query.all()
-            return jsonify([
-                {"id": user.id, "username": user.username, "role": user.role}
-                for user in users
-            ])
+# Register the Bcrypt instance with the Flask app
+bcrypt.init_app(app)
 
 # Routes for Order
 @app.route('/orders', methods=['POST'])
@@ -670,4 +650,3 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     app.run(debug=True)
-
