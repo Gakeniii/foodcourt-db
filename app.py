@@ -47,33 +47,6 @@ class UserResource(Resource):
                 {"id": user.id, "name": user.name, "role": user.role}
                 for user in users
             ])
-# Routes for Order
-@app.route('/orders', methods=['POST'])
-def create_order():
-    data = request.json
-    order = Order(customer_id=data['customer_id'], outlet_id=data['outlet_id'], status='Pending')
-    db.session.add(order)
-    db.session.commit()
-    return jsonify({'message': 'Order created successfully'}), 201
-
-@app.route('/orders/<int:order_id>', methods=['GET'])
-def get_order(order_id):
-    order = Order.query.get_or_404(order_id)
-    return jsonify({'id': order.id, 'customer_id': order.customer_id, 'outlet_id': order.outlet_id, 'status': order.status, 'created_at': order.created_at})
-
-# Routes for Table Booking
-@app.route('/bookings', methods=['POST'])
-def create_booking():
-    data = request.json
-    booking = TableBooking(customer_id=data['customer_id'], table_number=data['table_number'], booking_time=datetime.strptime(data['booking_time'], '%Y-%m-%d %H:%M:%S'))
-    db.session.add(booking)
-    db.session.commit()
-    return jsonify({'message': 'Booking created successfully'}), 201
-
-@app.route('/bookings/<int:booking_id>', methods=['GET'])
-def get_booking(booking_id):
-    booking = TableBooking.query.get_or_404(booking_id)
-    return jsonify({'id': booking.id, 'customer_id': booking.customer_id, 'table_number': booking.table_number, 'booking_time': booking.booking_time})
 
 
         user = User.query.get(user_id)
