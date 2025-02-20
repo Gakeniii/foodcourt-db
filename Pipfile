@@ -13,6 +13,8 @@ sqlalchemy-serializer = "*"
 flask-restful = "*"
 python-dotenv = "*"
 flask-cors = "*"
+marshmallow-sqlalchemy = "*"
+flask-socketio = "*"
 
 [dev-packages]
 

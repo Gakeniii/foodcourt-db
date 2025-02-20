@@ -16,7 +16,7 @@ class User(db.Model):
     password = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False)  
 
-    outlets = relationship('Outlet', backref='owner', lazy=True)
+    outlets = relationship('Outlet', back_populates='owner', lazy=True)
     orders = relationship('Order', backref='customer', lazy=True)
     bookings = relationship('TableBooking', backref='customer', lazy=True)
 
@@ -33,26 +33,54 @@ class User(db.Model):
             raise ValueError(f"Invalid role. Must be one of {valid_roles}")
         return role
 
+
 class OwnerMenu(db.Model):
     __tablename__ = 'ownermenu'
 
     id = db.Column(db.Integer, primary_key=True)
-    owner_name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+    image_url = db.Column(db.String, nullable=True)
+    cuisine = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    waiting = db.Column(db.Integer, nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
 
-    # Relationship: One OwnerMenu can have multiple MenuItems
-    menu_items = relationship('MenuItem', back_populates='owner_menu', cascade="all, delete-orphan")
+    owner = db.relationship('User', backref='owner_menus')
+    outlet = db.relationship('Outlet', back_populates='owner_menus')
+    menu_item = db.relationship('MenuItem', back_populates='owner_menu')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'owner_id': self.owner_id,
+            'outlet_id': self.outlet_id,
+            'name': self.name,
+            'price': self.price,
+            'image': self.image,
+            'cuisine': self.cuisine,
+            'category': self.category
+        }
+
 
 class Outlet(db.Model):
     __tablename__ = 'outlet'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
+    image_url= db.Column(db.String, nullable=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    menu_items = relationship('MenuItem', backref='outlet', lazy=True)
+    menu_items = relationship('MenuItem', back_populates='outlet', lazy=True)
     orders = relationship('Order', backref='outlet', lazy=True)
+    owner_menus = db.relationship('OwnerMenu', back_populates='outlet')
+    owner = db.relationship('User', back_populates='outlets')
 
+    @property
+    def owner_name(self):
+        return self.owner.username if self.owner and self.owner.role == 'owner' else None
+    
 
 class MenuItem(db.Model):
     __tablename__ = 'menuitem'
@@ -60,14 +88,16 @@ class MenuItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     image_url = db.Column(db.String, nullable=True)
-    price = db.Column(db.Float, nullable=False)
+    price = db.Column(db.Integer, nullable=False) 
     cuisine = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     waiting = db.Column(db.Integer, nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
+    owner_menu_id= db.Column(db.Integer, db.ForeignKey('ownermenu.id'), nullable=True)
 
+    outlet = db.relationship('Outlet', back_populates='menu_items')
     orders = relationship('OrderItem', back_populates='menu_item')
-    owner_menu = relationship('OwnerMenu', back_populates='menu_items')
+    owner_menu = relationship('OwnerMenu', back_populates='menu_item', uselist=False)
 
     @validates('price')
     def validate_price(self, key, price):
@@ -104,11 +134,13 @@ class Order(db.Model):
 
 class OrderItem(db.Model):
     __tablename__ = 'orderitem'
+    __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menuitem.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    payment_method = db.Column(db.String, nullable=False)
 
     order = relationship('Order', back_populates='order_items')
     menu_item = relationship('MenuItem', back_populates='orders')
@@ -127,7 +159,7 @@ class TableBooking(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     table_number = db.Column(db.Integer, nullable=False)
     booking_time = db.Column(db.DateTime, nullable=False)
-    datetime = db.Column(db.DateTime, default=datetime.now(timezone.utc))  # Timestamp for when the booking was created
+    datetime = db.Column(db.DateTime, default=datetime.now(timezone.utc)) 
 
     @validates('table_number')
     def validate_table_number(self, key, table_number):
@@ -140,3 +172,4 @@ class TableBooking(db.Model):
         if booking_time <= datetime.now(timezone.utc):
             raise ValueError("Booking time must be in the future")
         return booking_time
+    
