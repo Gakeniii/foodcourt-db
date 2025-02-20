@@ -236,7 +236,6 @@ class MenuItemResource(Resource):
                 return {"error": "Outlet not found"}, 404
 
             owner_menu = OwnerMenu.query.filter_by(outlet_id=outlet.id).first()
-
             if not owner_menu:
                 return {"error": "Owner menu not found for this outlet"}, 404
 
@@ -557,9 +556,9 @@ class OwnerMenuResource(Resource):
                 cuisine=data['cuisine'],
                 category=data.get('category'),
                 description=data.get('description'),
-                waiting=data['waiting'],  # Ensure it has a valid value
+                waiting=data['waiting'],
                 outlet_id=data['outlet_id'],
-                owner_menu_id=data.get('owner_menu_id')  # Optional but should be valid if provided
+                owner_menu_id=data.get('owner_menu_id')
             )
 
             db.session.add(menu_item)

@@ -50,7 +50,7 @@ class OwnerMenu(db.Model):
 
     owner = db.relationship('User', backref='owner_menus')
     outlet = db.relationship('Outlet', back_populates='owner_menus')
-    menu_item = db.relationship('MenuItem', back_populates='owner_menu', uselist=True)
+    menu_item = db.relationship('MenuItem', back_populates='owner_menu', lazy=True)
 
     def to_dict(self):
         return {
@@ -97,11 +97,11 @@ class MenuItem(db.Model):
     category = db.Column(db.String(50), nullable=False)
     waiting = db.Column(db.Integer, nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
-    owner_menu_id= db.Column(db.Integer, db.ForeignKey('ownermenu.id'), nullable=False)
+    owner_menu_id= db.Column(db.Integer, db.ForeignKey('ownermenu.id'), nullable=True)
 
     outlet = db.relationship('Outlet', back_populates='menu_items')
     orders = relationship('OrderItem', back_populates='menu_item')
-    owner_menu = relationship('OwnerMenu', back_populates='menu_item', uselist=False)
+    owner_menu = relationship('OwnerMenu', back_populates='menu_item')
 
     @validates('price')
     def validate_price(self, key, price):

@@ -1,22 +1,24 @@
 from app import app
 from models import db, User, Outlet, OwnerMenu, MenuItem, Order, OrderItem, TableBooking
 from datetime import datetime, timedelta, timezone
+from werkzeug.security import generate_password_hash
 import random
+
 
 booking_time = datetime.now(timezone.utc) + timedelta(days=random.randint(1, 10), hours=random.randint(1, 24))
 
 
 user_data = [
-    {"name": "john_doe", "email": "john@gmail.com", "password": "0000", "role": "Customer"},
-    {"name": "jane_smith", "email": "jane@gmail.com", "password": "9999", "role": "Customer"},
-    {"name": "alex_brown", "email": "alex@gmail.com", "password": "8888", "role": "Customer"},
-    {"name": "lisa_wilson", "email": "lisa@gmail.com", "password": "7777", "role": "Customer"},
-    {"name": "mark_jones", "email": "mark@gmail.com", "password": "6666", "role": "Customer"},
-    {"name": "chef_gordon", "email": "gordon@gmail.com", "password": "5555", "role": "Owner"},
-    {"name": "chef_oliver", "email": "oliver@gmail.com", "password": "4444", "role": "Owner"},
-    {"name": "james", "email": "james@gmail.com", "password": "3333", "role": "Owner"},
-    {"name": "susan", "email": "susan@gmail.com", "password": "2222", "role": "Owner"},
-    {"name": "kevin", "email": "kevin@gmail.com", "password": "1111", "role": "Owner"},
+    {"name": "john_doe", "email": "john@gmail.com", "password": generate_password_hash("0000"), "role": "Customer"},
+    {"name": "jane_smith", "email": "jane@gmail.com", "password": generate_password_hash("9999"), "role": "Customer"},
+    {"name": "alex_brown", "email": "alex@gmail.com", "password": generate_password_hash("8888"), "role": "Customer"},
+    {"name": "lisa_wilson", "email": "lisa@gmail.com", "password": generate_password_hash("7777"), "role": "Customer"},
+    {"name": "mark_jones", "email": "mark@gmail.com", "password": generate_password_hash("6666"), "role": "Customer"},
+    {"name": "chef_gordon", "email": "gordon@gmail.com", "password": generate_password_hash("5555"), "role": "Owner"},
+    {"name": "chef_oliver", "email": "oliver@gmail.com", "password": generate_password_hash("4444"), "role": "Owner"},
+    {"name": "james", "email": "james@gmail.com", "password": generate_password_hash("3333"), "role": "Owner"},
+    {"name": "susan", "email": "susan@gmail.com", "password": generate_password_hash("2222"), "role": "Owner"},
+    {"name": "kevin", "email": "kevin@gmail.com", "password": generate_password_hash("1111"), "role": "Owner"},
 ]
 
 outlet_data = [
@@ -87,7 +89,6 @@ with app.app_context():
     db.session.commit()
     print("Database seeded successfully with Menu Items data!")
 
-
     owner_menus = []
     for owner in owners:
         outlet = random.choice(outlets)
@@ -95,12 +96,22 @@ with app.app_context():
             menu_item = random.choice(menu_items)
             owner_menu = OwnerMenu(
                 owner_id=owner.id,
-                menu_item_id=menu_item.id,
-                outlet_id=outlet.id
+                outlet_id=outlet.id,
+                name=menu_item.name,  # ✅ Ensure menu item name is stored
+                price=menu_item.price,  # ✅ Ensure price is stored
+                image_url=menu_item.image_url,
+                cuisine=menu_item.cuisine,
+                category=menu_item.category,
+                waiting=menu_item.waiting
             )
-            owner_menus.append(owner_menu)
+            db.session.add(owner_menu)
+            db.session.commit()
     
     db.session.add_all(owner_menus)
+    db.session.commit()
+
+    menu_item.owner_menu_id = owner_menu.id  # ✅ Ensure the link is made
+    db.session.add(menu_item)
     db.session.commit()
     
     print("Database seeded successfully with OwnerMenu data!")
