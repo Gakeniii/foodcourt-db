@@ -172,4 +172,6 @@ class TableBooking(db.Model):
         if booking_time <= datetime.now(timezone.utc):
             raise ValueError("Booking time must be in the future")
         return booking_time
+        return booking_time
     
+

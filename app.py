@@ -4,11 +4,14 @@ import os
 
 from flask import Flask, request, jsonify, make_response
 
+
+
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask import Flask, jsonify, make_response
+
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_restful import Api, Resource
@@ -38,7 +41,6 @@ api = Api(app)
 CORS(app,  resources={r"/api/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-
 class UserResource(Resource):
     def get(self, user_id=None):
         if user_id is None:
@@ -47,6 +49,7 @@ class UserResource(Resource):
                 {"id": user.id, "username": user.username, "role": user.role}
                 for user in users
             ])
+
 # Routes for Order
 @app.route('/orders', methods=['POST'])
 def create_order():
@@ -79,8 +82,7 @@ def get_booking(booking_id):
         user = User.query.get(user_id)
         if not user:
             return {"error": "User not found"}, 404
-
-
+        
         if user.role == 'owner':
             return jsonify({
                 'id': user.id,
@@ -387,7 +389,10 @@ class OrderItemResource(Resource):
                     'id': item.id,
                     'order_id': item.order_id,
                     'menu_item_id': item.menu_item_id,
+                    'menu_item_name': item.menu_item.name if item.menu_item else None,  # ✅ Get menu item name
+
                     'menu_item_name': item.menu_item.name if item.menu_item else None,  
+
                     'quantity': item.quantity,
                     'payment_method': item.payment_method,
                     'order_details': {
@@ -656,6 +661,9 @@ if __name__ == '__main__':
 
 #         return make_response(jsonify({"message": "Owner menu deleted successfully"}), 200)
 
+
+
+# api.add_resource(OwnerMenuResource, '/owner_menus/<int:owner_menu_id>', '/owner_menus')
 
 
 # api.add_resource(OwnerMenuResource, '/owner_menus/<int:owner_menu_id>', '/owner_menus')
