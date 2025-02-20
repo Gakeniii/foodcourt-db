@@ -1,21 +1,33 @@
 from flask import Flask, request, jsonify
+from models import db, User, Outlet, MenuItem, Order, OrderItem, Table, Reservation
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-from flask import Flask, jsonify, make_response
 from flask_migrate import Migrate
+from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jwt
+from flask_cors import CORS
 from flask_restful import Api, Resource
-from dotenv import load_dotenv
-
-load_dotenv()
-
-from models import db, User, OwnerMenu, Outlet, MenuItem, Order, OrderItem, TableBooking
-
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
+
+# Database configuration
+app.config['SECRET_KEY'] = 'zdnksdghiosuvuksdhbvsmhdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
+
+# Initialize the app with db
+db.init_app(app)
+
+# Initialize extensions
+migrate = Migrate(app, db)
+bcrypt = Bcrypt()
+api = Api(app)
+CORS(app, resources={r"*": {"origins": "*"}})
+jwt = JWTManager(app)
+
+# Register the Bcrypt instance with the Flask app
+bcrypt.init_app(app)
 
 # Routes for Order
 @app.route('/orders', methods=['POST'])
