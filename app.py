@@ -29,7 +29,7 @@ db.init_app(app)
 
 api = Api(app)
 
-CORS(app,  resources={r"/api/*": {"origins": "*"}})
+CORS(app,  resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 class UserResource(Resource):
