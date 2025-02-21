@@ -317,5 +317,69 @@ def view_menu(outlet_id):
         "category": item.category
     } for item in menu_items]), 200
 
+# Place an Order
+@app.route('/outlet/<int:outlet_id>/place-order', methods=['POST'])
+@jwt_required()
+def place_order(outlet_id):
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Check if the outlet exists
+    outlet = Outlet.query.get(outlet_id)
+    if not outlet:
+        return jsonify({"error": "Outlet not found"}), 404
+
+    data = request.get_json()
+    reservation_id = data.get('reservation_id')
+    items = data.get('items')  # List of {menu_item_id, quantity}
+
+    if not items:
+        return jsonify({"error": "Items are required"}), 400
+
+    # Check if the reservation exists and belongs to the customer
+    if reservation_id:
+        reservation = Reservation.query.filter_by(id=reservation_id, customer_id=current_user_id).first()
+        if not reservation:
+            return jsonify({"error": "Reservation not found or does not belong to you"}), 404
+
+    # Create the order
+    new_order = Order(
+        customer_id=current_user_id,
+        outlet_id=outlet_id,
+        reservation_id=reservation_id,
+        status="pending"
+    )
+    db.session.add(new_order)
+    db.session.commit()
+
+    # Add order items
+    for item in items:
+        menu_item_id = item.get('menu_item_id')
+        quantity = item.get('quantity')
+
+        if not menu_item_id or not quantity:
+            return jsonify({"error": "Menu item ID and quantity are required for each item"}), 400
+
+        # Check if the menu item exists
+        menu_item = MenuItem.query.filter_by(id=menu_item_id, outlet_id=outlet_id).first()
+        if not menu_item:
+            return jsonify({"error": f"Menu item with ID {menu_item_id} not found"}), 404
+
+        # Create order item
+        new_order_item = OrderItem(
+            order_id=new_order.id,
+            menu_item_id=menu_item_id,
+            quantity=quantity
+        )
+        db.session.add(new_order_item)
+
+    db.session.commit()
+
+    return jsonify({"message": "Order placed successfully", "order_id": new_order.id}), 201
+
 if __name__ == '__main__':
     app.run(debug=True)
