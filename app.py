@@ -186,5 +186,36 @@ def create_table(outlet_id):
 
     return jsonify({"message": "Table created successfully", "table_id": new_table.id}), 201
 
+# Menu Item Routes
+@app.route('/outlet/<int:outlet_id>/menu-items', methods=['POST'])
+@jwt_required()
+def create_menu_item(outlet_id):
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Check if the outlet exists and belongs to the current user
+    outlet = Outlet.query.filter_by(id=outlet_id, owner_id=current_user_id).first()
+    if not outlet:
+        return jsonify({"error": "Outlet not found or you do not have permission to add menu items to this outlet"}), 404
+
+    data = request.get_json()
+    name = data.get('name')
+    price = data.get('price')
+    category = data.get('category')
+
+    if not name or not price or not category:
+        return jsonify({"error": "Name, price, and category are required"}), 400
+
+    # Create the menu item
+    new_menu_item = MenuItem(name=name, price=price, category=category, outlet_id=outlet_id)
+    db.session.add(new_menu_item)
+    db.session.commit()
+
+    return jsonify({"message": "Menu item created successfully", "menu_item_id": new_menu_item.id}), 201
+
 if __name__ == '__main__':
     app.run(debug=True)
