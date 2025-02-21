@@ -73,7 +73,7 @@ class Outlet(db.Model):
     image_url= db.Column(db.String, nullable=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    menu_items = relationship('MenuItem', back_populates='outlet', lazy=True)
+    menu_items = relationship('MenuItem', back_populates='outlet', lazy=True, cascade="all, delete-orphan")
     orders = db.relationship('Order', back_populates='outlet')
     owner_menus = db.relationship('OwnerMenu', back_populates='outlet')
     owner = db.relationship('User', back_populates='outlets')
@@ -81,44 +81,42 @@ class Outlet(db.Model):
     @property
     def owner_name(self):
         return self.owner.username if self.owner and self.owner.role == 'owner' else None
-    
-    
-    
+      
 
 class MenuItem(db.Model):
-    __tablename__ = 'menuitem'
+        __tablename__ = 'menuitem'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    image_url = db.Column(db.String, nullable=True)
-    price = db.Column(db.Integer, nullable=False) 
-    cuisine = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.String, nullable=True)
-    category = db.Column(db.String(50), nullable=False)
-    waiting = db.Column(db.Integer, nullable=False)
-    outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
-    owner_menu_id= db.Column(db.Integer, db.ForeignKey('ownermenu.id'), nullable=True)
+        id = db.Column(db.Integer, primary_key=True)
+        name = db.Column(db.String(100), nullable=False)
+        image_url = db.Column(db.String, nullable=True)
+        price = db.Column(db.Integer, nullable=False) 
+        cuisine = db.Column(db.String(50), nullable=False)
+        description = db.Column(db.String, nullable=True)
+        category = db.Column(db.String(50), nullable=False)
+        waiting = db.Column(db.Integer, nullable=False)
+        outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
+        owner_menu_id= db.Column(db.Integer, db.ForeignKey('ownermenu.id'), nullable=True)
 
-    outlet = db.relationship('Outlet', back_populates='menu_items')
-    orders = relationship('OrderItem', back_populates='menu_item')
-    owner_menu = relationship('OwnerMenu', back_populates='menu_item')
+        outlet = db.relationship('Outlet', back_populates='menu_items')
+        orders = relationship('OrderItem', back_populates='menu_item')
+        owner_menu = relationship('OwnerMenu', back_populates='menu_item')
 
-    @validates('price')
-    def validate_price(self, key, price):
-        if price <= 0:
-            raise ValueError("Price must be a positive number")
-        return price
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'price': self.price,
-            'image_url': self.image_url,
-            'cuisine': self.cuisine,
-            'category': self.category,
-            'owner_menu_id': self.owner_menu_id
-        }
+        @validates('price')
+        def validate_price(self, key, price):
+            if price <= 0:
+                raise ValueError("Price must be a positive number")
+            return price
+        
+        def to_dict(self):
+            return {
+                'id': self.id,
+                'name': self.name,
+                'price': self.price,
+                'image_url': self.image_url,
+                'cuisine': self.cuisine,
+                'category': self.category,
+                'owner_menu_id': self.owner_menu_id
+            }
 
 
 class Order(db.Model):
