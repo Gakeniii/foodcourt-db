@@ -5,6 +5,7 @@ blinker==1.8.2
 click==8.1.8
 Flask==3.0.3
 Flask-Cors==5.0.0
+Flask-JWT-Extended==4.6.0
 Flask-Migrate==4.1.0
 Flask-RESTful==0.3.10
 Flask-SocketIO==5.5.1
@@ -22,6 +23,7 @@ marshmallow==3.22.0
 marshmallow-sqlalchemy==1.1.1
 packaging==24.2
 psycopg2-binary==2.9.10
+PyJWT==2.8.0
 python-dotenv==1.0.1
 python-engineio==4.11.2
 python-socketio==5.12.1
