@@ -217,5 +217,56 @@ def create_menu_item(outlet_id):
 
     return jsonify({"message": "Menu item created successfully", "menu_item_id": new_menu_item.id}), 201
 
+# Customer Routes
+
+# Book a Table
+@app.route('/outlet/<int:outlet_id>/book-table', methods=['POST'])
+@jwt_required()
+def book_table(outlet_id):
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Check if the outlet exists
+    outlet = Outlet.query.get(outlet_id)
+    if not outlet:
+        return jsonify({"error": "Outlet not found"}), 404
+
+    data = request.get_json()
+    table_id = data.get('table_id')
+    reservation_time = data.get('reservation_time')
+
+    if not table_id or not reservation_time:
+        return jsonify({"error": "Table ID and reservation time are required"}), 400
+
+    # Check if the table exists and is available
+    table = Table.query.filter_by(id=table_id, outlet_id=outlet_id, is_available=True).first()
+    if not table:
+        return jsonify({"error": "Table not found or not available"}), 404
+
+    # Convert reservation_time to datetime object
+    try:
+        reservation_time = datetime.fromisoformat(reservation_time)
+    except ValueError:
+        return jsonify({"error": "Invalid reservation time format. Use ISO format (e.g., YYYY-MM-DDTHH:MM:SS)"}), 400
+
+    # Create the reservation
+    new_reservation = Reservation(
+        customer_id=current_user_id,
+        table_id=table_id,
+        reservation_time=reservation_time
+    )
+    db.session.add(new_reservation)
+    db.session.commit()
+
+    # Mark the table as unavailable
+    table.is_available = False
+    db.session.commit()
+
+    return jsonify({"message": "Table booked successfully", "reservation_id": new_reservation.id}), 201
+
 if __name__ == '__main__':
     app.run(debug=True)
