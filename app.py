@@ -403,5 +403,52 @@ def checkout(order_id):
 
     return jsonify({"message": "Checkout successful", "order_id": order.id}), 200
 
+# View Active Orders and Reservations
+@app.route('/customer/active-orders', methods=['GET'])
+@jwt_required()
+def view_active_orders():
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Fetch active orders (status is "pending" or "in-progress")
+    active_orders = Order.query.filter(
+        Order.customer_id == current_user_id,
+        Order.status.in_(["pending", "in-progress"])
+    ).all()
+
+    # Fetch active reservations (reservation_time is in the future)
+    active_reservations = Reservation.query.filter(
+        Reservation.customer_id == current_user_id,
+        Reservation.reservation_time > datetime.utcnow()
+    ).all()
+
+    # Format the response
+    orders_response = [{
+        "order_id": order.id,
+        "outlet_id": order.outlet_id,
+        "status": order.status,
+        "created_at": order.created_at.isoformat(),
+        "items": [{
+            "menu_item_id": item.menu_item_id,
+            "quantity": item.quantity
+        } for item in order.order_items]
+    } for order in active_orders]
+
+    reservations_response = [{
+        "reservation_id": reservation.id,
+        "table_id": reservation.table_id,
+        "reservation_time": reservation.reservation_time.isoformat(),
+        "outlet_id": reservation.table.outlet_id
+    } for reservation in active_reservations]
+
+    return jsonify({
+        "active_orders": orders_response,
+        "active_reservations": reservations_response
+    }), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
