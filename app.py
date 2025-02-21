@@ -381,5 +381,27 @@ def place_order(outlet_id):
 
     return jsonify({"message": "Order placed successfully", "order_id": new_order.id}), 201
 
+# Proceed to Checkout
+@app.route('/order/<int:order_id>/checkout', methods=['POST'])
+@jwt_required()
+def checkout(order_id):
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Check if the order exists and belongs to the customer
+    order = Order.query.filter_by(id=order_id, customer_id=current_user_id).first()
+    if not order:
+        return jsonify({"error": "Order not found or does not belong to you"}), 404
+
+    # Update the order status to "completed"
+    order.status = "completed"
+    db.session.commit()
+
+    return jsonify({"message": "Checkout successful", "order_id": order.id}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
