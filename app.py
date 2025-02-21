@@ -151,6 +151,40 @@ def get_booking(booking_id):
         birds = [bird.to_dict() for bird in User.query.all()]
         return make_response(jsonify(birds), 200)
 
+# Table Routes
+@app.route('/outlet/<int:outlet_id>/tables', methods=['POST'])
+@jwt_required()
+def create_table(outlet_id):
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Check if the outlet exists and belongs to the current user
+    outlet = Outlet.query.filter_by(id=outlet_id, owner_id=current_user_id).first()
+    if not outlet:
+        return jsonify({"error": "Outlet not found or you do not have permission to add tables to this outlet"}), 404
+
+    data = request.get_json()
+    table_number = data.get('table_number')
+    is_available = data.get('is_available', 'true').lower() == 'true'  # Convert to boolean
+
+    if not table_number:
+        return jsonify({"error": "Table number is required"}), 400
+
+    # Check if the table number is unique for the outlet
+    existing_table = Table.query.filter_by(outlet_id=outlet_id, table_number=table_number).first()
+    if existing_table:
+        return jsonify({"error": "Table number already exists for this outlet"}), 400
+
+    # Create the table
+    new_table = Table(table_number=table_number, is_available=is_available, outlet_id=outlet_id)
+    db.session.add(new_table)
+    db.session.commit()
+
+    return jsonify({"message": "Table created successfully", "table_id": new_table.id}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
