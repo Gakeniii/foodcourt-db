@@ -29,7 +29,7 @@ jwt = JWTManager(app)
 # Register the Bcrypt instance with the Flask app
 bcrypt.init_app(app)
 
-# User registration form
+
 @app.route('/register', methods=['POST'])
 def register_user():
     data = request.json
@@ -55,6 +55,7 @@ def register_user():
 
     return jsonify({"message": "User registered successfully", "user_id": new_user.id}), 201
 
+
 # Login route that generates JWT token
 @app.route('/login', methods=['POST'])
 def login_user():
@@ -78,6 +79,7 @@ def login_user():
         'access_token': access_token
     }), 200
 
+
 # Outlet Routes
 @app.route('/outlets', methods=['POST'])
 @jwt_required()  # This ensures that the user is authenticated
@@ -89,7 +91,7 @@ def create_outlet():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    if user.role != 'true':
+    if user.role != 'outlet_owner':
         return jsonify({"error": "You do not have the required permissions to create an outlet"}), 403
 
     data = request.json
@@ -106,7 +108,15 @@ def create_outlet():
 
     return jsonify({"message": "Outlet created successfully", "outlet_id": new_outlet.id}), 201
 
-@app.route('/outlets/update/<int:outlet_id>', methods=['PUT'])
+
+@app.route('/outlets', methods=['GET'])
+def get_outlets():
+    outlets = Outlet.query.all()
+    return jsonify([{"id": outlet.id, "name": outlet.name, "cuisine_type": outlet.cuisine_type} for outlet in outlets]), 200
+
+
+@app.route('/outlets/<int:outlet_id>', methods=['PUT'])
+@jwt_required()
 def update_outlet(outlet_id):
     data = request.json
     outlet = Outlet.query.get(outlet_id)
@@ -114,42 +124,17 @@ def update_outlet(outlet_id):
     if not outlet:
         return jsonify({"error": "Outlet not found"}), 404
 
+    # Check if the current user is the owner of the outlet
+    current_user_id = get_jwt_identity()
+    if outlet.owner_id != int(current_user_id):
+        return jsonify({"error": "You do not have permission to update this outlet"}), 403
+
     outlet.name = data.get('name', outlet.name)
     outlet.cuisine_type = data.get('cuisine_type', outlet.cuisine_type)
     db.session.commit()
 
     return jsonify({"message": "Outlet updated successfully"}), 200
 
-# Routes for Order
-@app.route('/orders', methods=['POST'])
-def create_order():
-    data = request.json
-    order = Order(customer_id=data['customer_id'], outlet_id=data['outlet_id'], status='Pending')
-    db.session.add(order)
-    db.session.commit()
-    return jsonify({'message': 'Order created successfully'}), 201
-
-@app.route('/orders/<int:order_id>', methods=['GET'])
-def get_order(order_id):
-    order = Order.query.get_or_404(order_id)
-    return jsonify({'id': order.id, 'customer_id': order.customer_id, 'outlet_id': order.outlet_id, 'status': order.status, 'created_at': order.created_at})
-
-# Routes for Table Booking
-@app.route('/bookings', methods=['POST'])
-def create_booking():
-    data = request.json
-    booking = TableBooking(customer_id=data['customer_id'], table_number=data['table_number'], booking_time=datetime.strptime(data['booking_time'], '%Y-%m-%d %H:%M:%S'))
-    db.session.add(booking)
-    db.session.commit()
-    return jsonify({'message': 'Booking created successfully'}), 201
-
-@app.route('/bookings/<int:booking_id>', methods=['GET'])
-def get_booking(booking_id):
-    booking = TableBooking.query.get_or_404(booking_id)
-    return jsonify({'id': booking.id, 'customer_id': booking.customer_id, 'table_number': booking.table_number, 'booking_time': booking.booking_time})
-    def get(self):
-        birds = [bird.to_dict() for bird in User.query.all()]
-        return make_response(jsonify(birds), 200)
 
 # Table Routes
 @app.route('/outlet/<int:outlet_id>/tables', methods=['POST'])
@@ -185,6 +170,7 @@ def create_table(outlet_id):
     db.session.commit()
 
     return jsonify({"message": "Table created successfully", "table_id": new_table.id}), 201
+
 
 # Menu Item Routes
 @app.route('/outlet/<int:outlet_id>/menu-items', methods=['POST'])
@@ -317,6 +303,7 @@ def view_menu(outlet_id):
         "category": item.category
     } for item in menu_items]), 200
 
+
 # Place an Order
 @app.route('/outlet/<int:outlet_id>/place-order', methods=['POST'])
 @jwt_required()
@@ -380,6 +367,7 @@ def place_order(outlet_id):
     db.session.commit()
 
     return jsonify({"message": "Order placed successfully", "order_id": new_order.id}), 201
+
 
 # Proceed to Checkout
 @app.route('/order/<int:order_id>/checkout', methods=['POST'])
@@ -449,6 +437,7 @@ def view_active_orders():
         "active_orders": orders_response,
         "active_reservations": reservations_response
     }), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
