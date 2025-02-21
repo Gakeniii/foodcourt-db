@@ -1,8 +1,8 @@
 """Recreated migrations
 
-Revision ID: 269713171ef8
+Revision ID: 15415ab57b05
 Revises: 
-Create Date: 2025-02-20 23:53:39.608904
+Create Date: 2025-02-21 12:39:07.748439
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '269713171ef8'
+revision = '15415ab57b05'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -83,7 +83,7 @@ def upgrade():
     sa.Column('category', sa.String(length=50), nullable=False),
     sa.Column('waiting', sa.Integer(), nullable=False),
     sa.Column('outlet_id', sa.Integer(), nullable=False),
-    sa.Column('owner_menu_id', sa.Integer(), nullable=False),
+    sa.Column('owner_menu_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['outlet_id'], ['outlet.id'], ),
     sa.ForeignKeyConstraint(['owner_menu_id'], ['ownermenu.id'], ),
     sa.PrimaryKeyConstraint('id')
