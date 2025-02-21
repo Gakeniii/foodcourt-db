@@ -2,6 +2,7 @@ from app import app
 from models import db, User, Outlet, OwnerMenu, MenuItem, Order, OrderItem, TableBooking
 from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash
+from sqlalchemy.dialects.postgresql import insert
 import random
 
 
@@ -22,7 +23,7 @@ user_data = [
 ]
 
 outlet_data = [
-    {"name": "Pasta Delight", "image_url": "https://images.pexels.com/photos/17588091/pexels-photo-17588091/free-photo-of-pasta-and-cake-on-table.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
+    {"name": "Pizza Delights", "image_url": "https://images.pexels.com/photos/17588091/pexels-photo-17588091/free-photo-of-pasta-and-cake-on-table.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
     {"name": "Kai Sushi Place", "image_url": "https://images.pexels.com/photos/3147493/pexels-photo-3147493.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
     {"name": "Green Garden Salad", "image_url": "https://images.pexels.com/photos/30350305/pexels-photo-30350305/free-photo-of-colorful-fresh-garden-salad-in-white-bowl.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
     {"name": "Steak House Supreme", "image_url": "https://images.pexels.com/photos/236887/pexels-photo-236887.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"},
@@ -59,6 +60,9 @@ payment_methods = ["Apple Pay", "M-Pesa", "Cash", "Card"]
 with app.app_context():
     db.drop_all()
     db.create_all()
+   
+    print("Database reset complete.")
+
     
     users = [User(**data) for data in user_data]
     db.session.add_all(users)
@@ -66,25 +70,35 @@ with app.app_context():
     
     owners = User.query.filter_by(role='Owner').all()
     customers = User.query.filter_by(role='Customer').all()
-    
-    outlets = [Outlet(name=outlet_data[i]["name"], image_url=outlet_data[i]["image_url"], owner_id=owners[i % len(owners)].id) for i in range(5)]
-    db.session.add_all(outlets)
-    db.session.commit()
 
-    
+    for outlet in outlet_data:
+        stmt = insert(Outlet).values(
+            name=outlet["name"],
+            image_url=outlet["image_url"],
+            owner_id=random.choice(owners).id  # Assign random owner
+        ).on_conflict_do_nothing(index_elements=["name"])  # Prevent duplicates
+
+        db.session.execute(stmt)
+
+    db.session.commit()
+    print("Outlets inserted without duplicates!")
+
+    outlets = Outlet.query.all()
+
     menu_items = []
-    for i in range(len(menu_data)):
-        outlet = outlets[i % len(outlets)]
+    for i, menu in enumerate(menu_data):
+        outlet = outlets[i % len(outlets)]  # Ensure menus are evenly distributed
         menu_item = MenuItem(
-            name=menu_data[i]['name'],
-            price=menu_data[i]['price'],
-            image_url=menu_data[i]['image_url'],
-            cuisine=menu_data[i]['cuisine'],
-            category=menu_data[i]['category'],
-            waiting=menu_data[i]['waiting'],
+            name=menu['name'],
+            price=menu['price'],
+            image_url=menu['image_url'],
+            cuisine=menu['cuisine'],
+            category=menu['category'],
+            waiting=menu['waiting'],
             outlet_id=outlet.id
         )
         menu_items.append(menu_item)
+
     db.session.add_all(menu_items)
     db.session.commit()
     print("Database seeded successfully with Menu Items data!")
@@ -92,31 +106,38 @@ with app.app_context():
     owner_menus = []
     for owner in owners:
         outlet = random.choice(outlets)
-        for menu_item in menu_items:
-            menu_item = random.choice(menu_items)
+        outlet_menu_items = [item for item in menu_items if item.outlet_id == outlet.id]
+
+        for menu_item in outlet_menu_items:
             owner_menu = OwnerMenu(
                 owner_id=owner.id,
                 outlet_id=outlet.id,
-                name=menu_item.name,  # Ensure menu item name is stored
-                price=menu_item.price,  #  Ensure price is stored
+                name=menu_item.name,
+                price=menu_item.price,
                 image_url=menu_item.image_url,
                 cuisine=menu_item.cuisine,
                 category=menu_item.category,
                 waiting=menu_item.waiting
             )
-            db.session.add(owner_menu)
-            db.session.commit()
-    
+            owner_menus.append(owner_menu)
+
     db.session.add_all(owner_menus)
     db.session.commit()
-
-    menu_item.owner_menu_id = owner_menu.id  # Ensure the link is made
-    db.session.add(menu_item)
-    db.session.commit()
-    
     print("Database seeded successfully with OwnerMenu data!")
 
-    
+    print("\n--- Outlets and Their Menus ---\n")
+    for outlet in outlets:
+        print(f"Outlet: {outlet.name}")
+        menu_items = MenuItem.query.filter_by(outlet_id=outlet.id).all()
+
+        if menu_items:
+            for item in menu_items:
+                print(f" - {item.name}: {item.price} Ksh")
+        else:
+            print(" - No menu items available.")
+        
+        print("\n")
+      
     orders = []
     for customer in customers:
         num_orders = random.randint(1, 5)  # Each customer places 1-5 orders
@@ -132,7 +153,6 @@ with app.app_context():
     db.session.add_all(orders)
     db.session.commit()
     print(f"Database seeded successfully with {len(orders)} Orders!")
-
 
     
     order_items = []
