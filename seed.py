@@ -73,7 +73,7 @@ with app.app_context():
 
     
     menu_items = []
-    for i in range(5):
+    for i in range(len(menu_data)):
         outlet = outlets[i % len(outlets)]
         menu_item = MenuItem(
             name=menu_data[i]['name'],
@@ -92,13 +92,13 @@ with app.app_context():
     owner_menus = []
     for owner in owners:
         outlet = random.choice(outlets)
-        for _ in range(3):
+        for menu_item in menu_items:
             menu_item = random.choice(menu_items)
             owner_menu = OwnerMenu(
                 owner_id=owner.id,
                 outlet_id=outlet.id,
-                name=menu_item.name,  # ✅ Ensure menu item name is stored
-                price=menu_item.price,  # ✅ Ensure price is stored
+                name=menu_item.name,  # Ensure menu item name is stored
+                price=menu_item.price,  #  Ensure price is stored
                 image_url=menu_item.image_url,
                 cuisine=menu_item.cuisine,
                 category=menu_item.category,
@@ -110,7 +110,7 @@ with app.app_context():
     db.session.add_all(owner_menus)
     db.session.commit()
 
-    menu_item.owner_menu_id = owner_menu.id  # ✅ Ensure the link is made
+    menu_item.owner_menu_id = owner_menu.id  # Ensure the link is made
     db.session.add(menu_item)
     db.session.commit()
     
@@ -118,17 +118,21 @@ with app.app_context():
 
     
     orders = []
-    for _ in range(7):
-        order = Order(
-            customer_id=random.choice(customers).id,
-            outlet_id=random.choice(outlets).id,
-            status=random.choice(order_statuses),
-            table_number=random.randint(1, 20)
-        )
-        orders.append(order)
+    for customer in customers:
+        num_orders = random.randint(1, 5)  # Each customer places 1-5 orders
+        for _ in range(num_orders):
+            order = Order(
+                customer_id=customer.id,
+                outlet_id=random.choice(outlets).id,
+                status=random.choice(order_statuses),
+                table_number=random.randint(1, 20)
+            )
+            orders.append(order)
+
     db.session.add_all(orders)
     db.session.commit()
-    print("Database seeded successfully with Orders data!")
+    print(f"Database seeded successfully with {len(orders)} Orders!")
+
 
     
     order_items = []
