@@ -2,8 +2,6 @@
 
 import os
 
-from flask import Flask, request, jsonify, make_response
-
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -302,6 +300,17 @@ class OrderResource(Resource):
                     'outlet_id': order.outlet_id,
                     'outlet_name': order.outlet.name if order.outlet else "Unknown",
                     'status': order.status,
+                    'total_price': sum([item.total_price for item in order.order_items]),
+                    'order_items': [
+                        {
+                            'menu_item_id': item.menu_item_id,
+                            'menu_item_name': item.menu_item.name if item.menu_item else None,
+                            'menu_item_price': item.menu_item.price,
+                            'quantity': item.quantity,
+                            'total_price': item.quantity * item.menu_item.price,
+                            'outlet_name': item.menu_item.outlet.name if item.menu_item.outlet else "Unknown"
+                        } for item in order.order_items
+                    ],
                     'created_at': order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'table_number': order.table_booking.table_number if order.table_booking else order.table_number
                 } for order in orders
@@ -318,10 +327,20 @@ class OrderResource(Resource):
             'outlet_id': order.outlet_id,
             'outlet_name': order.outlet.name if order.outlet else "Unknown",
             'status': order.status,
+            'total_price': sum([item.total_price for item in order.order_items]),
             'created_at': order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            'order_items': [
+                {
+                    'menu_item_id': item.menu_item_id,
+                    'menu_item_name': item.menu_item.name if item.menu_item else None,
+                    'menu_item_price': item.menu_item.price,
+                    'quantity': item.quantity,
+                    'total_price': item.total_price,
+                    'outlet_name': item.menu_item.outlet.name if item.menu_item.outlet else "Unknown"
+                } for item in order.order_items
+            ],
             'table_number': order.table_booking.table_number if order.table_booking else order.table_number
         })
-
 
     def post(self):
         data = request.get_json()
@@ -330,17 +349,20 @@ class OrderResource(Resource):
         status = data.get('status', "Pending")
         table_booking_id = data.get('table_booking_id')  # Optional
         table_number = data.get('table_number')  # Optional
+        order_items_data = data.get('order_items')  # List of order items (menu item ids and quantities)
+
+        if not order_items_data:
+            return {"error": "Order items are required"}, 400
 
         customer = User.query.get(customer_id)
         if not customer:
             return {"error": "Customer not found"}, 404
 
         existing_booking = TableBooking.query.filter_by(customer_id=customer_id).first()
-        
         if existing_booking:
             table_booking_id = existing_booking.id
             table_number = existing_booking.table_number
-        elif table_number:  
+        elif table_number:
             if TableBooking.query.filter_by(table_number=table_number).first():
                 return {"error": "This table is already booked"}, 400
         else:
@@ -349,6 +371,7 @@ class OrderResource(Resource):
         valid_statuses = ["Pending", "Confirmed", "Completed", "Cancelled"]
         if status not in valid_statuses:
             return {"error": "Invalid status. Allowed values: 'Pending', 'Confirmed', 'Completed', 'Cancelled'"}, 404
+
         new_order = Order(
             customer_id=customer_id,
             outlet_id=outlet_id,
@@ -357,11 +380,38 @@ class OrderResource(Resource):
             status=status
         )
 
+        total_price = 0
+        for item_data in order_items_data:
+            menu_item = MenuItem.query.get(item_data['menu_item_id'])
+            if not menu_item:
+                return {"error": f"Menu item {item_data['menu_item_id']} not found"}, 404
+
+            quantity = item_data['quantity']
+            payment_method = item_data.get('payment_method', "Cash")
+            total_item_price = menu_item.price * quantity
+
+            order_item = OrderItem(
+                order_id=new_order.id,
+                menu_item_id=item_data['menu_item_id'],
+                quantity=quantity,
+                payment_method=payment_method,
+                total_price=total_item_price
+            )
+            db.session.add(order_item)
+            total_price += total_item_price  
+
         db.session.add(new_order)
         db.session.commit()
 
-        return {"message": "Order created successfully", "order_id": new_order.id}, 201
-    
+        new_order.total_price = total_price
+        db.session.commit()
+
+        return {
+            "message": "Order created successfully",
+            "order_id": new_order.id,
+            "total_price": total_price
+        }, 201
+
     def patch(self, order_id):
         order = Order.query.get_or_404(order_id)
         data = request.get_json()
@@ -376,14 +426,14 @@ class OrderResource(Resource):
         db.session.commit()
         return jsonify({'message': 'Order updated successfully', 'updated_order': order.status})
 
-    
     def delete(self, order_id):
         order = Order.query.get_or_404(order_id)
         db.session.delete(order)
         db.session.commit()
         return jsonify({'message': 'Order deleted successfully'})
-    
+
 api.add_resource(OrderResource, '/orders', '/orders/<int:order_id>')
+
 
 
 class OrderItemResource(Resource):
@@ -395,8 +445,9 @@ class OrderItemResource(Resource):
                     'id': item.id,
                     'order_id': item.order_id,
                     'menu_item_id': item.menu_item_id,
-                    'menu_item_name': item.menu_item.name if item.menu_item else None,  # ✅ Get menu item name
+                    'menu_item_name': item.menu_item.name if item.menu_item else None,
                     'quantity': item.quantity,
+                    'total_price': item.quantity * item.menu_item.price,
                     'payment_method': item.payment_method,
                     'order_details': {
                         'customer_id': item.order.customer_id if item.order else None,
@@ -419,8 +470,9 @@ class OrderItemResource(Resource):
             'id': order_item.id,
             'order_id': order_item.order_id,
             'menu_item_id': order_item.menu_item_id,
-            'menu_item_name': order_item.menu_item.name if order_item.menu_item else None,  # ✅ Get menu item name
+            'menu_item_name': order_item.menu_item.name if order_item.menu_item else None,
             'quantity': order_item.quantity,
+            'total_price': order_item.item.quantity * order_item.item.menu_item.price,
             'payment_method': order_item.payment_method,
             'order_details': {
                 'customer_id': order_item.order.customer_id if order_item.order else None,
