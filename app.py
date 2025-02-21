@@ -268,5 +268,36 @@ def book_table(outlet_id):
 
     return jsonify({"message": "Table booked successfully", "reservation_id": new_reservation.id}), 201
 
+@app.route('/reservation/<int:reservation_id>', methods=['DELETE'])
+@jwt_required()
+def delete_reservation(reservation_id):
+    # Get the current user from the JWT token
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Find the reservation
+    reservation = Reservation.query.get(reservation_id)
+    if not reservation:
+        return jsonify({"error": "Reservation not found"}), 404
+
+    # Debugging: Print reservation owner and current user
+    print(f"Reservation Owner ID: {reservation.customer_id}")
+    print(f"Current User ID: {current_user_id}")
+    print(f"User Role: {user.role}")
+
+    # Check if the current user is the owner of the reservation or an admin
+    if reservation.customer_id != current_user_id and user.role != 'admin':
+        print("Permission denied: User is not the owner or an admin")
+        return jsonify({"error": "You do not have permission to delete this reservation"}), 403
+
+    # Hard delete the reservation
+    db.session.delete(reservation)
+    db.session.commit()
+
+    return jsonify({"message": "Reservation deleted successfully"}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
