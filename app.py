@@ -299,5 +299,23 @@ def delete_reservation(reservation_id):
 
     return jsonify({"message": "Reservation deleted successfully"}), 200
 
+# View Menu for an Outlet
+@app.route('/outlet/<int:outlet_id>/menu', methods=['GET'])
+@jwt_required()
+def view_menu(outlet_id):
+    # Check if the outlet exists
+    outlet = Outlet.query.get(outlet_id)
+    if not outlet:
+        return jsonify({"error": "Outlet not found"}), 404
+
+    # Fetch all menu items for the outlet
+    menu_items = MenuItem.query.filter_by(outlet_id=outlet_id).all()
+    return jsonify([{
+        "id": item.id,
+        "name": item.name,
+        "price": item.price,
+        "category": item.category
+    } for item in menu_items]), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
