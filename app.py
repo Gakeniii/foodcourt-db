@@ -51,7 +51,7 @@ class UserResource(Resource):
         if not user:
             return {"error": "User not found"}, 404
 
-        if user.role == 'owner':
+        if user.role == 'Owner':
             return jsonify({
                 'id': user.id,
                 'name': user.name,
@@ -132,7 +132,13 @@ class OutletResource(Resource):
                     'name': outlet.name,
                     'owner_id': outlet.owner_id,
                     'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,  
-                    'menu_items': [{'id': item.id, 'name': item.name} for item in outlet.menu_items],
+                    'menu_items': [{
+                        'id': item.id,
+                        'name': item.name,
+                        'image_url': item.image_url,
+                        'price': item.price,
+                        'waiting': item.waiting
+                        } for item in outlet.menu_items],
                     'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
                 } for outlet in outlets
             ])
@@ -147,7 +153,13 @@ class OutletResource(Resource):
             'name': outlet.name,
             'owner_id': outlet.owner_id,
             'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,  # Owner name only if role = "owner"
-            'menu_items': [{'id': item.id, 'name': item.name} for item in outlet.menu_items],
+            'menu_items': [{
+                'id': item.id,
+                'name': item.name,
+                'image_url': item.image_url,
+                'waiting': item.waiting,
+                'price': item.price
+                } for item in outlet.menu_items],
             'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
         })
 
@@ -307,7 +319,7 @@ class OrderResource(Resource):
                             'menu_item_name': item.menu_item.name if item.menu_item else None,
                             'menu_item_price': item.menu_item.price,
                             'quantity': item.quantity,
-                            'total_price': item.quantity * item.menu_item.price,
+                            'total_price': item.total_price,
                             'outlet_name': item.menu_item.outlet.name if item.menu_item.outlet else "Unknown"
                         } for item in order.order_items
                     ],
@@ -350,14 +362,17 @@ class OrderResource(Resource):
         table_booking_id = data.get('table_booking_id')  # Optional
         table_number = data.get('table_number')  # Optional
         order_items_data = data.get('order_items')  # List of order items (menu item ids and quantities)
+        payment_method = data.get('payment_method', "Cash")
 
-        if not order_items_data:
-            return {"error": "Order items are required"}, 400
+        if not order_items_data or not isinstance(order_items_data, list):
+            return {"error": "Order items are required and must be a list."}, 400
 
+        # Validate customer
         customer = User.query.get(customer_id)
         if not customer:
             return {"error": "Customer not found"}, 404
 
+        # Validate table booking
         existing_booking = TableBooking.query.filter_by(customer_id=customer_id).first()
         if existing_booking:
             table_booking_id = existing_booking.id
@@ -368,41 +383,53 @@ class OrderResource(Resource):
         else:
             return {"error": "Please provide a valid table number or book in advance"}, 400
 
+        # Validate order status
         valid_statuses = ["Pending", "Confirmed", "Completed", "Cancelled"]
         if status not in valid_statuses:
-            return {"error": "Invalid status. Allowed values: 'Pending', 'Confirmed', 'Completed', 'Cancelled'"}, 404
+            return {"error": f"Invalid status. Allowed values: {valid_statuses}"}, 400
 
+        total_price = 0
+
+        # Create the order first
         new_order = Order(
             customer_id=customer_id,
             outlet_id=outlet_id,
             table_booking_id=table_booking_id,
             table_number=table_number,
-            status=status
+            status=status,
+            total_price=0
         )
 
-        total_price = 0
-        for item_data in order_items_data:
-            menu_item = MenuItem.query.get(item_data['menu_item_id'])
-            if not menu_item:
-                return {"error": f"Menu item {item_data['menu_item_id']} not found"}, 404
+        db.session.add(new_order)
+        db.session.flush()  # Commit so new_order gets an ID
 
-            quantity = item_data['quantity']
-            payment_method = item_data.get('payment_method', "Cash")
+        order_items = []
+        
+        # Process order items
+        for item_data in order_items_data:
+            menu_item = MenuItem.query.get(item_data.get('menu_item_id'))
+            if not menu_item:
+                return {"error": f"Menu item {item_data.get('menu_item_id')} not found"}, 404
+
+            quantity = item_data.get('quantity', 1)
+            item_payment_method = item_data.get('payment_method', payment_method)  # Allow per-item payment method
             total_item_price = menu_item.price * quantity
 
             order_item = OrderItem(
-                order_id=new_order.id,
-                menu_item_id=item_data['menu_item_id'],
+                order_id=new_order.id,  # Assign new order ID
+                menu_item_id=menu_item.id,
                 quantity=quantity,
-                payment_method=payment_method,
+                payment_method=item_payment_method,
                 total_price=total_item_price
             )
-            db.session.add(order_item)
+
+            order_items.append(order_item)
             total_price += total_item_price  
 
-        db.session.add(new_order)
-        db.session.commit()
+        # Add all order items
+        db.session.add_all(order_items)
 
+        # Update the order total price
         new_order.total_price = total_price
         db.session.commit()
 
@@ -411,6 +438,7 @@ class OrderResource(Resource):
             "order_id": new_order.id,
             "total_price": total_price
         }, 201
+
 
     def patch(self, order_id):
         order = Order.query.get_or_404(order_id)
@@ -447,7 +475,7 @@ class OrderItemResource(Resource):
                     'menu_item_id': item.menu_item_id,
                     'menu_item_name': item.menu_item.name if item.menu_item else None,
                     'quantity': item.quantity,
-                    'total_price': item.quantity * item.menu_item.price,
+                    'total_price': item.total_price,
                     'payment_method': item.payment_method,
                     'order_details': {
                         'customer_id': item.order.customer_id if item.order else None,
@@ -472,7 +500,7 @@ class OrderItemResource(Resource):
             'menu_item_id': order_item.menu_item_id,
             'menu_item_name': order_item.menu_item.name if order_item.menu_item else None,
             'quantity': order_item.quantity,
-            'total_price': order_item.item.quantity * order_item.item.menu_item.price,
+            'total_price': order_item.total_price,
             'payment_method': order_item.payment_method,
             'order_details': {
                 'customer_id': order_item.order.customer_id if order_item.order else None,
@@ -490,7 +518,10 @@ class OrderItemResource(Resource):
         order_item = OrderItem(**data)
         db.session.add(order_item)
         db.session.commit()
-        return jsonify({'message': 'Order item created successfully'})
+        return jsonify({
+            'message': 'Order item created successfully',
+            'owner_item': order_item.id
+            })
     
     def patch(self, order_item_id):
         order_item = OrderItem.query.get_or_404(order_item_id)
@@ -507,6 +538,47 @@ class OrderItemResource(Resource):
         return jsonify({'message': 'Order item deleted successfully'})
     
 api.add_resource(OrderItemResource, '/order_items', '/order_items/<int:order_item_id>')
+
+class CheckoutResource(Resource):
+    def get(self, order_id):
+        order_items = OrderItem.query.filter_by(order_id=order_id).all()
+        
+        if not order_items:
+            return {"error": "No items in the cart for this order"}, 404
+
+        # Organize items by outlet
+        checkout_summary = {}
+        total_price = 0
+
+        for item in order_items:
+            outlet_id = item.order.outlet_id  # Ensure order has outlet_id
+            outlet_name = item.order.outlet.name if item.order.outlet else "Unknown Outlet"
+            
+            if outlet_id not in checkout_summary:
+                checkout_summary[outlet_id] = {
+                    "outlet_name": outlet_name,
+                    "items": [],
+                    "subtotal": 0
+                }
+
+            # Add item details
+            checkout_summary[outlet_id]["items"].append({
+                "menu_item_name": item.menu_item.name,
+                "quantity": item.quantity,
+                "total_price": item.total_price
+            })
+
+            # Update subtotal per outlet
+            checkout_summary[outlet_id]["subtotal"] += item.total_price
+            total_price += item.total_price
+
+        return {
+            "order_id": order_id,
+            "outlets": checkout_summary,
+            "total_price": total_price
+        }
+
+api.add_resource(CheckoutResource, '/checkout/<int:order_id>')
 
 
 class TableBookingResource(Resource):
