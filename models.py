@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship,validates
+from sqlalchemy.orm import relationship,validates, deferred
 from datetime import datetime, timezone
+from sqlalchemy import event
+from werkzeug.security import check_password_hash
 from sqlalchemy.sql import func
 import re
 
@@ -32,6 +34,9 @@ class User(db.Model):
         if role not in valid_roles:
             raise ValueError(f"Invalid role. Must be one of {valid_roles}")
         return role
+    
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
 
 class OwnerMenu(db.Model):
@@ -49,7 +54,7 @@ class OwnerMenu(db.Model):
 
     owner = db.relationship('User', backref='owner_menus')
     outlet = db.relationship('Outlet', back_populates='owner_menus')
-    menu_item = db.relationship('MenuItem', back_populates='owner_menu', lazy=True, cascade="all, delete-orphan")
+    menu_items = db.relationship('MenuItem', back_populates='owner_menu', lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -127,6 +132,7 @@ class Order(db.Model):
     table_booking_id = db.Column(db.Integer, db.ForeignKey('table_bookings.id'), nullable=True)  
     table_number = db.Column(db.Integer, nullable=True) 
     status = db.Column(db.String(20), default="Pending")
+    total_price = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=func.now())  
 
     outlet = db.relationship('Outlet', back_populates='orders')
@@ -157,6 +163,7 @@ class Order(db.Model):
             'table_booking_id': self.table_booking_id,
             'table_number': self.table_number,
             'status': self.status,
+            'total_price': self.total_price,
             'created_at': self.created_at.isoformat(),
             'order_items': [item.to_dict() for item in self.order_items]
         }
@@ -171,7 +178,8 @@ class OrderItem(db.Model):
     menu_item_id = db.Column(db.Integer, db.ForeignKey('menuitem.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     payment_method = db.Column(db.String, nullable=False)
-    total_price = db.Column(db.Float, nullable=False)
+    total_price = deferred(db.Column(db.Float, nullable=False))
+
 
     order = db.relationship('Order', back_populates='order_items')
     menu_item = db.relationship('MenuItem', back_populates='orders')
@@ -181,6 +189,7 @@ class OrderItem(db.Model):
         if quantity < 1:
             raise ValueError("Quantity must be at least 1")
         return quantity
+
     def to_dict(self):
         return{
             'id': self.id,
@@ -189,8 +198,15 @@ class OrderItem(db.Model):
             'menu_item_name': self.menu_item.name,
             'image_url': self.menu_item.image_url, 
             'quantity': self.quantity,
-            'payment_method': self.payment_method
+            'payment_method': self.payment_method,
+            'total_price': self.total_price
     }
+@event.listens_for(OrderItem, 'before_insert')
+@event.listens_for(OrderItem, 'before_update')
+def set_total_price(mapper, connection, target):
+    menu_item = db.session.get(MenuItem, target.menu_item_id)
+    if menu_item and target.total_price is None:  # Prevent unnecessary updates
+        target.total_price = target.quantity * menu_item.price
 
 
 class TableBooking(db.Model):
