@@ -171,73 +171,80 @@ api.add_resource(RefreshTokenResource, "/api/auth/refresh")
 
 class OutletResource(Resource):
     def get(self, outlet_id=None):
+
+        cuisine_filter = request.args.get("cuisine", None)
         if outlet_id is None:
             outlets = Outlet.query.all()
-            return jsonify([
-                {
+
+            outlet_list = []
+            for outlet in outlets:
+                cuisines = list(set(item.cuisine for item in outlet.menu_items))
+
+                if cuisine_filter and cuisine_filter not in cuisines:
+                    continue
+
+                outlet_list.append({
                     'id': outlet.id,
                     'image_url': outlet.image_url,
                     'name': outlet.name,
                     'owner_id': outlet.owner_id,
-                    'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,  
-                    'menu_items': [{'id': item.id, 'name': item.name} for item in outlet.menu_items],
+                    'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,
+                    'cuisines': cuisines,  # Include cuisines in the response
+                    'menu_items': [{
+                        'id': item.id,
+                        'name': item.name,
+                        'image_url': item.image_url,
+                        'price': item.price,
+                        'waiting': item.waiting
+                    } for item in outlet.menu_items],
                     'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
-                } for outlet in outlets
-            ])
+                })
+
+            return jsonify(outlet_list)
         
         outlet = Outlet.query.get(outlet_id)
         if not outlet:
             return {"error": "Outlet not found"}, 404
-        
+
         return jsonify({
             'id': outlet.id,
             'image_url': outlet.image_url,
             'name': outlet.name,
             'owner_id': outlet.owner_id,
             'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,
-            'menu_items': [{'id': item.id, 'name': item.name} for item in outlet.menu_items],
+            'cuisines': list(set(item.cuisine for item in outlet.menu_items)),  # Unique cuisines
+            'menu_items': [{
+                'id': item.id,
+                'name': item.name,
+                'image_url': item.image_url,
+                'waiting': item.waiting,
+                'price': item.price,
+            } for item in outlet.menu_items],
             'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
         })
 
-    @jwt_required()
     def post(self):
-            data = request.get_json()
+        data = request.get_json()
 
-            if not data or "owner_id" not in data:
-                return {'error': 'Missing owner_id field'}, 400
+        owner = User.query.get(data.get('owner_id'))
+        if not owner or owner.role != 'Owner':
+            return jsonify({'error': 'Invalid owner id. User must have role "Owner".'}), 400
+        
+        outlet = Outlet(name=data['name'], owner_id=data['owner_id'], image_url=data['image_url'])
+        db.session.add(outlet)
+        db.session.commit()
 
-            owner = User.query.get(data.get('owner_id'))
-            if not owner:
-                return {'error': 'Owner not found'}, 404
-            elif owner.role != 'Owner':
-                return {'error': 'User must have role "Owner"'}, 403
-
-            outlet = Outlet(
-                name=data['name'],
-                owner_id=data['owner_id'],
-                image_url=data.get('image_url', '')  # Default empty if image_url missing
-            )
-
-            db.session.add(outlet)
-            db.session.commit()
-
-            return {
-                'message': 'Outlet created successfully',
-                'id': outlet.id,
-                'image_url': outlet.image_url,
-                'name': outlet.name,
-                'owner_id': outlet.owner_id,
-                'owner_name': owner.name
-            }, 201
+        return jsonify({
+            'message': 'Outlet created successfully',
+            'id': outlet.id,
+            'image_url': outlet.image_url,
+            'name': outlet.name,
+            'owner_id': outlet.owner_id,
+            'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None
+        })
     
-    @jwt_required()
     def patch(self, outlet_id):
         outlet = Outlet.query.get_or_404(outlet_id)
-        current_user = get_jwt_identity()
-
-        if outlet.owner_id != current_user["id"]:
-            return jsonify({'error': 'Unauthorized. You can only update your own outlets.'}), 403
-
         data = request.get_json()
         for key, value in data.items():
             setattr(outlet, key, value)
@@ -250,17 +257,11 @@ class OutletResource(Resource):
             'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None
             })
     
-    @jwt_required()
     def delete(self, outlet_id):
         outlet = Outlet.query.get_or_404(outlet_id)
-        current_user = get_jwt_identity()
-
-        if outlet.owner_id != current_user["id"]:
-            return {'error': 'Unauthorized. You can only delete your own outlets.'}, 403
-
         db.session.delete(outlet)
         db.session.commit()
-        return {'message': 'Outlet deleted successfully'}
+        return jsonify({'message': 'Outlet deleted successfully'})
 
 api.add_resource(OutletResource, '/outlets', '/outlets/<int:outlet_id>')
 
@@ -277,7 +278,7 @@ class MenuItemResource(Resource):
                     'price': int(item.price),  
                     'cuisine': item.cuisine,
                     'category': item.category,
-                    'description': item.description,
+                    'description':item.description,
                     'waiting': item.waiting,
                     'outlet': {'id': item.outlet.id, 'name': item.outlet.name} if item.outlet else None
                 } for item in menu_items
@@ -294,12 +295,11 @@ class MenuItemResource(Resource):
             'price': int(menu_item.price),
             'cuisine': menu_item.cuisine,
             'category': menu_item.category,
-            'description': menu_item.description,
+            'description':menu_item.description,
             'waiting': menu_item.waiting,
             'outlet': {'id': menu_item.outlet.id, 'name': menu_item.outlet.name} if menu_item.outlet else None
         }
 
-    @jwt_required()
     def post(self):
         data = request.get_json()
 
@@ -314,9 +314,11 @@ class MenuItemResource(Resource):
                 return {"error": "Outlet not found"}, 404
 
             owner_menu = OwnerMenu.query.filter_by(outlet_id=outlet.id).first()
+
             if not owner_menu:
                 return {"error": "Owner menu not found for this outlet"}, 404
 
+            
             menu_item = MenuItem(
                 name=data['name'],
                 image_url=data.get('image_url'),
@@ -340,7 +342,7 @@ class MenuItemResource(Resource):
             db.session.rollback()
             return {"error": str(e)}, 500
 
-    @jwt_required()
+    
     def patch(self, menu_item_id):
         menu_item = MenuItem.query.get_or_404(menu_item_id)
         data = request.get_json()
@@ -349,7 +351,6 @@ class MenuItemResource(Resource):
         db.session.commit()
         return jsonify({'message': 'Menu item updated successfully'})
     
-    @jwt_required()
     def delete(self, menu_item_id):
         menu_item = MenuItem.query.get_or_404(menu_item_id)
         db.session.delete(menu_item)
@@ -358,8 +359,6 @@ class MenuItemResource(Resource):
 
 api.add_resource(MenuItemResource, '/menu_items', '/menu_items/<int:menu_item_id>')
 
-
-from flask_jwt_extended import jwt_required
 
 class OrderResource(Resource):
     def get(self, order_id=None):
@@ -370,9 +369,18 @@ class OrderResource(Resource):
                     'id': order.id,
                     'customer_id': order.customer_id,
                     'customer_name': order.customer.name if order.customer else "Unknown",
-                    'outlet_id': order.outlet_id,
-                    'outlet_name': order.outlet.name if order.outlet else "Unknown",
                     'status': order.status,
+                    'total_price': sum([item.total_price for item in order.order_items]),
+                    'order_items': [
+                        {
+                            'menu_item_id': item.menu_item_id,
+                            'menu_item_name': item.menu_item.name if item.menu_item else None,
+                            'menu_item_price': item.menu_item.price,
+                            'quantity': item.quantity,
+                            'total_price': item.total_price,
+                            'outlet_name': item.menu_item.outlet.name if item.menu_item.outlet else "Unknown"
+                        } for item in order.order_items
+                    ],
                     'created_at': order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'table_number': order.table_booking.table_number if order.table_booking else order.table_number
                 } for order in orders
@@ -386,14 +394,22 @@ class OrderResource(Resource):
             'id': order.id,
             'customer_id': order.customer_id,
             'customer_name': order.customer.name if order.customer else "Unknown",
-            'outlet_id': order.outlet_id,
-            'outlet_name': order.outlet.name if order.outlet else "Unknown",
             'status': order.status,
+            'total_price': sum([item.total_price for item in order.order_items]),
             'created_at': order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            'order_items': [
+                {
+                    'menu_item_id': item.menu_item_id,
+                    'menu_item_name': item.menu_item.name if item.menu_item else None,
+                    'menu_item_price': item.menu_item.price,
+                    'quantity': item.quantity,
+                    'total_price': item.total_price,
+                    'outlet_name': item.menu_item.outlet.name if item.menu_item.outlet else "Unknown"
+                } for item in order.order_items
+            ],
             'table_number': order.table_booking.table_number if order.table_booking else order.table_number
         })
 
-    @jwt_required()  
     def post(self):
         data = request.get_json()
         customer_id = data.get('customer_id')
@@ -401,40 +417,85 @@ class OrderResource(Resource):
         status = data.get('status', "Pending")
         table_booking_id = data.get('table_booking_id')  # Optional
         table_number = data.get('table_number')  # Optional
+        order_items_data = data.get('order_items')  # List of order items (menu item ids and quantities)
+        payment_method = data.get('payment_method', "Cash")
 
+        if not order_items_data or not isinstance(order_items_data, list):
+            return {"error": "Order items are required and must be a list."}, 400
+
+        # Validate customer
         customer = User.query.get(customer_id)
         if not customer:
             return {"error": "Customer not found"}, 404
 
+        # Validate table booking
         existing_booking = TableBooking.query.filter_by(customer_id=customer_id).first()
-        
         if existing_booking:
             table_booking_id = existing_booking.id
             table_number = existing_booking.table_number
-        elif table_number:  
+        elif table_number:
             if TableBooking.query.filter_by(table_number=table_number).first():
                 return {"error": "This table is already booked"}, 400
         else:
             return {"error": "Please provide a valid table number or book in advance"}, 400
 
+        # Validate order status
         valid_statuses = ["Pending", "Confirmed", "Completed", "Cancelled"]
         if status not in valid_statuses:
-            return {"error": "Invalid status. Allowed values: 'Pending', 'Confirmed', 'Completed', 'Cancelled'"}, 404
-        
+            return {"error": f"Invalid status. Allowed values: {valid_statuses}"}, 400
+
+        total_price = 0
+
+        # Create the order first
         new_order = Order(
             customer_id=customer_id,
             outlet_id=outlet_id,
             table_booking_id=table_booking_id,
             table_number=table_number,
-            status=status
+            status=status,
+            total_price=0
         )
 
         db.session.add(new_order)
+        db.session.flush()  # Commit so new_order gets an ID
+
+        order_items = []
+        
+        # Process order items
+        for item_data in order_items_data:
+            menu_item = MenuItem.query.get(item_data.get('menu_item_id'))
+            if not menu_item:
+                return {"error": f"Menu item {item_data.get('menu_item_id')} not found"}, 404
+
+            quantity = item_data.get('quantity', 1)
+            item_payment_method = item_data.get('payment_method', payment_method)  # Allow per-item payment method
+            total_item_price = menu_item.price * quantity
+
+            order_item = OrderItem(
+                order_id=new_order.id,  # Assign new order ID
+                menu_item_id=menu_item.id,
+                quantity=quantity,
+                payment_method=item_payment_method,
+                total_price=total_item_price
+            )
+
+            order_items.append(order_item)
+            total_price += total_item_price  
+
+        # Add all order items
+        db.session.add_all(order_items)
+
+        # Update the order total price
+        new_order.total_price = total_price
         db.session.commit()
 
-        return {"message": "Order created successfully", "order_id": new_order.id}, 201
-    
-    @jwt_required()  
+        return {
+            "message": "Order created successfully",
+            "order_id": new_order.id,
+            "total_price": total_price
+        }, 201
+
+
     def patch(self, order_id):
         order = Order.query.get_or_404(order_id)
         data = request.get_json()
@@ -449,17 +510,15 @@ class OrderResource(Resource):
         db.session.commit()
         return jsonify({'message': 'Order updated successfully', 'updated_order': order.status})
 
-    @jwt_required()  
     def delete(self, order_id):
         order = Order.query.get_or_404(order_id)
         db.session.delete(order)
         db.session.commit()
         return jsonify({'message': 'Order deleted successfully'})
-    
+
 api.add_resource(OrderResource, '/orders', '/orders/<int:order_id>')
 
 
-from flask_jwt_extended import jwt_required
 
 class OrderItemResource(Resource):
     def get(self, order_item_id=None):
@@ -470,14 +529,14 @@ class OrderItemResource(Resource):
                     'id': item.id,
                     'order_id': item.order_id,
                     'menu_item_id': item.menu_item_id,
-                    'menu_item_name': item.menu_item.name if item.menu_item else None, 
+                    'menu_item_name': item.menu_item.name if item.menu_item else None,
                     'quantity': item.quantity,
+                    'total_price': item.total_price,
                     'payment_method': item.payment_method,
+                    'outlet_name': item.menu_item.outlet.name if item.menu_item and item.menu_item.outlet else "Unknown",
                     'order_details': {
                         'customer_id': item.order.customer_id if item.order else None,
                         'customer_name': item.order.customer.name if item.order and item.order.customer else None,
-                        'outlet_id': item.order.outlet_id if item.order else None,
-                        'outlet_name': item.order.outlet.name if item.order and item.order.outlet else None,
                         'status': item.order.status if item.order else None,
                         'table_number': item.order.table_number if item.order else None,
                         'created_at': item.order.created_at.strftime("%Y-%m-%d %H:%M:%S") if item.order and item.order.created_at else None
@@ -496,27 +555,29 @@ class OrderItemResource(Resource):
             'menu_item_id': order_item.menu_item_id,
             'menu_item_name': order_item.menu_item.name if order_item.menu_item else None,
             'quantity': order_item.quantity,
+            'total_price': order_item.total_price,
             'payment_method': order_item.payment_method,
+            'outlet_name': order_item.menu_item.outlet.name if order_item.menu_item and order_item.menu_item.outlet else "Unknown",
             'order_details': {
                 'customer_id': order_item.order.customer_id if order_item.order else None,
                 'customer_name': order_item.order.customer.name if order_item.order and order_item.order.customer else None,
-                'outlet_id': order_item.order.outlet_id if order_item.order else None,
-                'outlet_name': order_item.order.outlet.name if order_item.order and order_item.order.outlet else None,
                 'status': order_item.order.status if order_item.order else None,
                 'table_number': order_item.order.table_number if order_item.order else None,
                 'created_at': order_item.order.created_at.strftime("%Y-%m-%d %H:%M:%S") if order_item.order and order_item.order.created_at else None
             }
         })
 
-    @jwt_required()  
+
     def post(self):
         data = request.get_json()
         order_item = OrderItem(**data)
         db.session.add(order_item)
         db.session.commit()
-        return jsonify({'message': 'Order item created successfully'})
+        return jsonify({
+            'message': 'Order item created successfully',
+            'owner_item': order_item.id
+            })
     
-    @jwt_required()  
     def patch(self, order_item_id):
         order_item = OrderItem.query.get_or_404(order_item_id)
         data = request.get_json()
@@ -525,7 +586,6 @@ class OrderItemResource(Resource):
         db.session.commit()
         return jsonify({'message': 'Order item updated successfully'})
     
-    @jwt_required()  
     def delete(self, order_item_id):
         order_item = OrderItem.query.get_or_404(order_item_id)
         db.session.delete(order_item)
@@ -533,6 +593,47 @@ class OrderItemResource(Resource):
         return jsonify({'message': 'Order item deleted successfully'})
     
 api.add_resource(OrderItemResource, '/order_items', '/order_items/<int:order_item_id>')
+
+class CheckoutResource(Resource):
+    def get(self, order_id):
+        order_items = OrderItem.query.filter_by(order_id=order_id).all()
+        
+        if not order_items:
+            return {"error": "No items in the cart for this order"}, 404
+
+        # Organize items by outlet
+        checkout_summary = {}
+        total_price = 0
+
+        for item in order_items:
+            outlet_id = item.order.outlet_id  # Ensure order has outlet_id
+            outlet_name = item.order.outlet.name if item.order.outlet else "Unknown Outlet"
+            
+            if outlet_id not in checkout_summary:
+                checkout_summary[outlet_id] = {
+                    "items": [],
+                    "subtotal": 0
+                }
+
+            # Add item details
+            checkout_summary[outlet_id]["items"].append({
+                "menu_item_name": item.menu_item.name,
+                "price": item.menu_item.price,
+                "quantity": item.quantity,
+                "total_price": item.total_price
+            })
+
+            # Update subtotal per outlet
+            checkout_summary[outlet_id]["subtotal"] += item.total_price
+            total_price += item.total_price
+
+        return {
+            "order_id": order_id,
+            "outlets": checkout_summary,
+            "total_price": total_price
+        }
+
+api.add_resource(CheckoutResource, '/checkout/<int:order_id>')
 
 
 class TableBookingResource(Resource):
@@ -579,7 +680,6 @@ class TableBookingResource(Resource):
             } for table in available_tables
         ])
 
-    @jwt_required()
     def post(self):
         data = request.get_json()
 
@@ -607,7 +707,6 @@ class TableBookingResource(Resource):
 
         return {'message': 'Table booking created successfully', 'booking_id': booking.id}, 201
 
-    @jwt_required()
     def delete(self, booking_id):
         booking = TableBooking.query.get_or_404(booking_id)
         booking.available = True  
@@ -617,19 +716,11 @@ class TableBookingResource(Resource):
 
 api.add_resource(TableBookingResource, '/bookings', '/bookings/<int:booking_id>', '/bookings/available')
 
-
 class OwnerMenuResource(Resource):
     def get(self):
         menus = OwnerMenu.query.all()
-        return jsonify([
-            {
-                **menu.to_dict(),  # Include existing fields
-                "owner_name": menu.owner.name if menu.owner else "Unknown"  # Add owner name
-            }
-            for menu in menus
-        ])
+        return jsonify([menu.to_dict() for menu in menus])
 
-    @jwt_required()  
     def post(self):
         data = request.get_json()
 
@@ -640,7 +731,7 @@ class OwnerMenuResource(Resource):
 
         try:
             data['price'] = int(data['price'])
-            data['waiting'] = int(data['waiting'])
+            data['waiting'] = int(data['waiting'])  # Ensure waiting is an integer
 
             outlet = Outlet.query.get(data['outlet_id'])
             if not outlet:
@@ -649,13 +740,13 @@ class OwnerMenuResource(Resource):
             menu_item = MenuItem(
                 name=data['name'],
                 image_url=data.get('image_url'),
-                price=data['price'],
+                price=data['price'],  
                 cuisine=data['cuisine'],
                 category=data.get('category'),
                 description=data.get('description'),
-                waiting=data['waiting'],
+                waiting=data['waiting'],  # Ensure it has a valid value
                 outlet_id=data['outlet_id'],
-                owner_menu_id=data.get('owner_menu_id')
+                owner_menu_id=data.get('owner_menu_id')  # Optional but should be valid if provided
             )
 
             db.session.add(menu_item)
@@ -675,13 +766,8 @@ class SingleOwnerMenuResource(Resource):
         menu = OwnerMenu.query.get(menu_id)
         if not menu:
             return {"message": "Menu item not found"}, 404
+        return jsonify(menu.to_dict())
 
-        return jsonify({
-            **menu.to_dict(),
-            "owner_name": menu.owner.name if menu.owner else "Unknown"  # Add owner name
-        })
-
-    @jwt_required()  
     def patch(self, menu_id):
         menu = OwnerMenu.query.get(menu_id)
         if not menu:
@@ -709,7 +795,6 @@ class SingleOwnerMenuResource(Resource):
 
         return {"message": "Menu item updated successfully", "menu": menu.to_dict()}
 
-    @jwt_required()  
     def delete(self, menu_id):
         menu = OwnerMenu.query.get(menu_id)
         if not menu:
@@ -722,11 +807,6 @@ class SingleOwnerMenuResource(Resource):
         db.session.commit()
 
         return {"message": "Menu item deleted successfully"}, 200
-   
-api.add_resource(OwnerMenuResource, '/ownermenu')
-api.add_resource(SingleOwnerMenuResource, '/ownermenu/<int:menu_id>')
-
-
-if __name__ == '__main__':
-    db.create_all()
-    app.run(debug=True)
+    
+api.add_resource(OwnerMenuResource,'/ownermenu')
+api.add_resource(SingleOwnerMenuResource,'/ownermenu/<int:menu_id>')  
