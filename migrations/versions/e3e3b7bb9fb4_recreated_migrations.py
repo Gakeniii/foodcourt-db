@@ -1,8 +1,8 @@
 """Recreated migrations
 
-Revision ID: 15415ab57b05
+Revision ID: e3e3b7bb9fb4
 Revises: 
-Create Date: 2025-02-21 12:39:07.748439
+Create Date: 2025-02-22 23:15:31.944134
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '15415ab57b05'
+revision = 'e3e3b7bb9fb4'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -53,6 +53,7 @@ def upgrade():
     sa.Column('table_booking_id', sa.Integer(), nullable=True),
     sa.Column('table_number', sa.Integer(), nullable=True),
     sa.Column('status', sa.String(length=20), nullable=True),
+    sa.Column('total_price', sa.Float(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['customer_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['outlet_id'], ['outlet.id'], ),
@@ -94,6 +95,7 @@ def upgrade():
     sa.Column('menu_item_id', sa.Integer(), nullable=False),
     sa.Column('quantity', sa.Integer(), nullable=False),
     sa.Column('payment_method', sa.String(), nullable=False),
+    sa.Column('total_price', sa.Float(), nullable=False),
     sa.ForeignKeyConstraint(['menu_item_id'], ['menuitem.id'], ),
     sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
     sa.PrimaryKeyConstraint('id')
