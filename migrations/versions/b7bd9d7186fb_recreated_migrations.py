@@ -1,8 +1,8 @@
-"""Regenerated migrations
+"""Recreated migrations
 
-Revision ID: abfa9269b08c
+Revision ID: b7bd9d7186fb
 Revises: 
-Create Date: 2025-02-21 21:44:39.385064
+Create Date: 2025-02-22 13:26:36.495007
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'abfa9269b08c'
+revision = 'b7bd9d7186fb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -83,7 +83,7 @@ def upgrade():
     sa.Column('category', sa.String(length=50), nullable=False),
     sa.Column('waiting', sa.Integer(), nullable=False),
     sa.Column('outlet_id', sa.Integer(), nullable=False),
-    sa.Column('owner_menu_id', sa.Integer(), nullable=False),
+    sa.Column('owner_menu_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['outlet_id'], ['outlet.id'], ),
     sa.ForeignKeyConstraint(['owner_menu_id'], ['ownermenu.id'], ),
     sa.PrimaryKeyConstraint('id')
