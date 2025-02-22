@@ -3,85 +3,39 @@
 import os
 
 from flask import Flask, request, jsonify
-from models import db, User, Outlet, MenuItem, Order, OrderItem, Table, Reservation
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_bcrypt import Bcrypt
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, get_jwt
+from datetime import datetime
+from flask import Flask, jsonify, make_response
+from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_restful import Api, Resource
-from datetime import datetime, timedelta
+from dotenv import load_dotenv
+from sqlalchemy import MetaData
+from datetime import datetime, timezone
+from flask_socketio import SocketIO
+
+load_dotenv()
+
+from models import db, User, OwnerMenu, Outlet, MenuItem, Order, OrderItem, TableBooking
 
 app = Flask(__name__)
-
-# Database configuration
-app.config['SECRET_KEY'] = 'zdnksdghiosuvuksdhbvsmhdb'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.json.compact = False
 
-# Initialize the app with db
+metadata = MetaData(naming_convention={
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+})
+
+migrate = Migrate(app, db)
 db.init_app(app)
 
-# Initialize extensions
-migrate = Migrate(app, db)
-bcrypt = Bcrypt()
 api = Api(app)
-CORS(app, resources={r"*": {"origins": "*"}})
-jwt = JWTManager(app)
-
 
 CORS(app,  supports_credentials=True)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-
-# User registration form
-@app.route('/register', methods=['POST'])
-def register_user():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    role = data.get('role', 'customer')  # Default role is 'customer'
-
-    if not username or not password:
-        return jsonify({"error": "Username and password are required"}), 400
-
-    if User.query.filter_by(username=username).first():
-        return jsonify({"error": "Username already exists"}), 400
-
-    # Ensure password is a string
-    password = str(password)
-
-    # Hash the password before storing
-    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-    new_user = User(username=username, password=hashed_password, role=role)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({"message": "User registered successfully", "user_id": new_user.id}), 201
-
-# Login route that generates JWT token
-@app.route('/login', methods=['POST'])
-def login_user():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-
-    # Convert pass to str before login
-    password = str(password)
-
-    # Find user by username
-    user = User.query.filter_by(username=username).first()
-    
-    if not user or not bcrypt.check_password_hash(user.password, password):
-        return jsonify({"error": "Invalid username or password"}), 401
-
-    # Create JWT token with user.id as string
-    access_token = create_access_token(identity=str(user.id), fresh=True, expires_delta=timedelta(hours=1))  # token valid for 1 hour
-    return jsonify({
-        'message': 'Login successful',
-        'access_token': access_token
-    }), 200
 
 class UserResource(Resource):
     def get(self, user_id=None):
@@ -92,41 +46,12 @@ class UserResource(Resource):
                 for user in users
             ])
 
-# Routes for Order
-@app.route('/orders', methods=['POST'])
-def create_order():
-    data = request.json
-    order = Order(customer_id=data['customer_id'], outlet_id=data['outlet_id'], status='Pending')
-    db.session.add(order)
-    db.session.commit()
-    return jsonify({'message': 'Order created successfully'}), 201
-
-@app.route('/orders/<int:order_id>', methods=['GET'])
-def get_order(order_id):
-    order = Order.query.get_or_404(order_id)
-    return jsonify({'id': order.id, 'customer_id': order.customer_id, 'outlet_id': order.outlet_id, 'status': order.status, 'created_at': order.created_at})
-
-# Routes for Table Booking
-@app.route('/bookings', methods=['POST'])
-def create_booking():
-    data = request.json
-    booking = TableBooking(customer_id=data['customer_id'], table_number=data['table_number'], booking_time=datetime.strptime(data['booking_time'], '%Y-%m-%d %H:%M:%S'))
-    db.session.add(booking)
-    db.session.commit()
-    return jsonify({'message': 'Booking created successfully'}), 201
-
-@app.route('/bookings/<int:booking_id>', methods=['GET'])
-def get_booking(booking_id):
-    booking = TableBooking.query.get_or_404(booking_id)
-    return jsonify({'id': booking.id, 'customer_id': booking.customer_id, 'table_number': booking.table_number, 'booking_time': booking.booking_time})
 
         user = User.query.get(user_id)
         if not user:
             return {"error": "User not found"}, 404
 
         if user.role == 'Owner':
-        
-        if user.role == 'owner':
             return jsonify({
                 'id': user.id,
                 'name': user.name,
@@ -599,11 +524,6 @@ class OrderItemResource(Resource):
                     'order_id': item.order_id,
                     'menu_item_id': item.menu_item_id,
                     'menu_item_name': item.menu_item.name if item.menu_item else None,
-
-                    'menu_item_name': item.menu_item.name if item.menu_item else None,  # ✅ Get menu item name
-
-                    'menu_item_name': item.menu_item.name if item.menu_item else None,  
-
                     'quantity': item.quantity,
                     'total_price': item.total_price,
                     'payment_method': item.payment_method,
@@ -999,8 +919,6 @@ if __name__ == '__main__':
 
 # api.add_resource(OwnerMenuResource, '/owner_menus/<int:owner_menu_id>', '/owner_menus')
 
-
-# api.add_resource(OwnerMenuResource, '/owner_menus/<int:owner_menu_id>', '/owner_menus')
-
 if __name__ == '__main__':
     app.run(debug=True)
+
