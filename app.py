@@ -123,45 +123,95 @@ api.add_resource(UserResource, '/users', '/users/<int:user_id>')
 
 class OutletResource(Resource):
     def get(self, outlet_id=None):
+
+        cuisine_filter = request.args.get("cuisine", None)
         if outlet_id is None:
             outlets = Outlet.query.all()
-            return jsonify([
-                {
+
+            outlet_list = []
+            for outlet in outlets:
+                cuisines = list(set(item.cuisine for item in outlet.menu_item))
+
+                if cuisine_filter and cuisine_filter not in cuisines:
+                    continue
+
+                outlet_list.append({
                     'id': outlet.id,
                     'image_url': outlet.image_url,
                     'name': outlet.name,
                     'owner_id': outlet.owner_id,
-                    'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,  
+                    'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,
+                    'cuisines': cuisines,  # Include cuisines in the response
                     'menu_items': [{
                         'id': item.id,
                         'name': item.name,
                         'image_url': item.image_url,
                         'price': item.price,
                         'waiting': item.waiting
-                        } for item in outlet.menu_items],
+                    } for item in outlet.menu_items],
                     'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
-                } for outlet in outlets
-            ])
+                })
+
+            return jsonify(outlet_list)
         
         outlet = Outlet.query.get(outlet_id)
         if not outlet:
             return {"error": "Outlet not found"}, 404
-        
+
         return jsonify({
             'id': outlet.id,
             'image_url': outlet.image_url,
             'name': outlet.name,
             'owner_id': outlet.owner_id,
-            'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,  # Owner name only if role = "owner"
+            'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,
+            'cuisines': list(set(item.cuisine for item in outlet.menu_items)),  # Unique cuisines
             'menu_items': [{
                 'id': item.id,
                 'name': item.name,
                 'image_url': item.image_url,
                 'waiting': item.waiting,
-                'price': item.price
-                } for item in outlet.menu_items],
+                'price': item.price,
+            } for item in outlet.menu_items],
             'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
         })
+            
+            # return jsonify([
+            #     {
+            #         'id': outlet.id,
+            #         'image_url': outlet.image_url,
+            #         'name': outlet.name,
+            #         'owner_id': outlet.owner_id,
+            #         'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,  
+            #         'menu_items': [{
+            #             'id': item.id,
+            #             'name': item.name,
+            #             'image_url': item.image_url,
+            #             'price': item.price,
+            #             'waiting': item.waiting
+            #             } for item in outlet.menu_items],
+            #         'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
+            #     } for outlet in outlets
+            # ])
+        
+        # outlet = Outlet.query.get(outlet_id)
+        # if not outlet:
+        #     return {"error": "Outlet not found"}, 404
+        
+        # return jsonify({
+        #     'id': outlet.id,
+        #     'image_url': outlet.image_url,
+        #     'name': outlet.name,
+        #     'owner_id': outlet.owner_id,
+        #     'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None,  # Owner name only if role = "owner"
+        #     'menu_items': [{
+        #         'id': item.id,
+        #         'name': item.name,
+        #         'image_url': item.image_url,
+        #         'waiting': item.waiting,
+        #         'price': item.price
+        #         } for item in outlet.menu_items],
+        #     'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
+        # })
 
     def post(self):
         data = request.get_json()
