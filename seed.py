@@ -404,7 +404,6 @@ with app.app_context():
     menu_items = []
     for outlet in outlets:
         outlet_dict = next((o for o in outlet_data if o["name"] == outlet.name), None)
-        description = menu_item.get("description", "No description available")
         
         if not outlet_dict:
             print(f"⚠️ No matching outlet found in outlet_data for {outlet.name}")
@@ -416,6 +415,7 @@ with app.app_context():
 
         for category, items in outlet_dict["menus"].items():
             for menu_item in items:
+                description = menu_item.get("description", "No description available")
                 menu_item_db = MenuItem(
                     name=menu_item["name"],
                     price=menu_item["price"],
@@ -441,6 +441,7 @@ with app.app_context():
         outlet_menu_items = [item for item in menu_items if item.outlet_id == outlet.id]
         
         for menu_item in outlet_menu_items:
+            description = menu_item.description if menu_item.description else "No description available"
             owner_menu = OwnerMenu(
                 owner_id=owner.id,
                 outlet_id=outlet.id,
