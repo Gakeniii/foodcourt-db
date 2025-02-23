@@ -14,7 +14,7 @@ cuisines = ['Italian', 'Japanese', 'Indian', 'American', 'French', 'Mexican', 'C
 
 outlet_data = [
     {"name": "Sapori d'Italia",
-     "image_url": "https://images.pexels.com/photos/17588091/pexels-photo-17588091/free-photo-of-pasta-and-cake-on-table.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+     "image_url": "https://saporidiitalia.co.uk/wp-content/uploads/2024/01/updated-logo-_-tag-line_Mesa-de-trabajo-1-1-e1704668897200.png",
      "menus":{
          "Starter": [
              {"name": "Bruschetta", "price": 650, "image_url": "https://www.walderwellness.com/wp-content/uploads/2024/05/Burrata-Bruschetta-Walder-Wellness-5-1024x1536.jpg", "cuisine": "Italian", "description": "Grilled bread topped with garlic, olive oil and salt, served with toppings of tomatoes, vegetables, cured meat and cheese", "waiting": 10},
@@ -22,10 +22,10 @@ outlet_data = [
              {"name": "Focaccia", "price": 450, "image_url": "https://www.feastingathome.com/wp-content/uploads/2024/10/focaccia-5-1.jpg", "cuisine": "Italian", "description": "Springy Italian bread dotted with fresh rosemary sprigs, sprinkled with flaky sea salt", "waiting": 6}
          ],
          "Main Course": [
-             {"name": "Margharita Pizza", "price": 1200, "image_url": "https://images.pexels.com/photos/30737921/pexels-photo-30737921/free-photo-of-top-view-of-delicious-cheese-pizza-on-wooden-board.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", "cuisine": "Italian", "description": "Classic Margherita pizza with fresh tomatoes, mozzarella, and basil.", "waiting": 15},
+             {"name": "Margharita Pizza", "price": 1200, "image_url": "https://www.cookingclassy.com/wp-content/uploads/2017/08/margherita-pizza-9.jpg", "cuisine": "Italian", "description": "Classic Margherita pizza with fresh tomatoes, mozzarella, and basil.", "waiting": 15},
              {"name": "Chicken Scarpariello", "price": 2500, "image_url": "https://www.foodandwine.com/thmb/P5Vs7pUOnUKWuuX_1ro191x4BRc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Chicken-Scarpariello-FT-RECIPE1023-c6c5d4c72b1f4c66bd8276106447c988.jpg", "cuisine": "Italian", "description": "Sauteed chicken in tangy lemon glaze with sweet pickeled bell peppers", "waiting": 20},
              {"name": "Italian Wedding Risotto", "price": 1850, "image_url": "https://www.foodandwine.com/thmb/a_r5T2LVyBlOe3s73zq1ZoHA6bc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/FAW-recipes-italian-wedding-risotto-hero-01-f9c6681cf49f4b958882d2fb84acc61d.jpg", "cuisine": "Italian", "description": "Italian weeding soup, served with garlicky meatball and spinach risotto, drizzled with olive oil and grated parmesean and Parlsey", "waiting": 25},
-             {"name": "Pasta Cabonara", "price": 1900, "image_url": "image_url", "cuisine": "Italian", "description": "Traditional Roman pasta made with spaghetti, eggs, pancetta, Pecorino cheese and black pepper", "waiting": 20},
+             {"name": "Pasta Cabonara", "price": 1900, "image_url": "https://www.sweetteaandthyme.com/wp-content/uploads/2023/11/cheesecake-factory-carbonara-overhead-close.jpg", "cuisine": "Italian", "description": "Traditional Roman pasta made with spaghetti, eggs, pancetta, Pecorino cheese and black pepper", "waiting": 20},
              {"name": "Saltimbocca alla Romana", "price": 2500, "image_url": "https://images.immediate.co.uk/production/volatile/sites/57/2024/06/100620241718011871.jpeg", "cuisine": "Italian", "description": "Thin slices of veal wrapped with prosciutto and sage, pan-fried in butter and fine wine, with bold aromatic flavours", "waiting": 20}  
          ],
          "Dessert": [
@@ -48,14 +48,14 @@ outlet_data = [
      }
     },
 
-    {"name": "Kai Sushi Place", "image_url": "https://images.pexels.com/photos/3147493/pexels-photo-3147493.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    {"name": "Kai Sushi Place", "image_url": "https://labellakosher.com/wp-content/uploads/2024/09/Sushi-Platters.jpg",
      "menus": {
          "Starter": [
              {"name": "Edamame", "price": 500, "image_url": "https://www.peanutbutterandfitness.com/wp-content/uploads/2023/07/Sweet-Spicy-Garlic-Edamame-Recipe-2.jpg", "cuisine": "Japanese", "decsription":"foodie eats", "waiting": 5},
              {"name": "Miso Soup", "price": 450, "image_url": "https://ik.imagekit.io/webtactics/changs/tr:w-750,h-1000/cgblog/id384/Chicken-Miso-Soup-3.jpg", "cuisine": "Japanese", "decsription":"foodie eats", "waiting": 4}
          ],
          "Main Course": [
-             {"name": "Sushi Platter", "price": 3200, "image_url": "https://images.pexels.com/photos/3763816/pexels-photo-3763816.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", "cuisine": "Japanese", "category": "Main Course","description": "Assorted sushi platter with fresh salmon, tuna, and avocado rolls.", "waiting": 20},
+             {"name": "Sushi Platter", "price": 3200, "image_url": "https://images.stockcake.com/public/f/3/9/f39b142f-9648-46cf-8267-2d1d74b4dbf4_large/delicious-sushi-platter-stockcake.jpg", "cuisine": "Japanese", "category": "Main Course","description": "Assorted sushi platter with fresh salmon, tuna, and avocado rolls.", "waiting": 20},
              {"name": "Teriyaki Beef", "price": 1100, "image_url": "https://simplehomeedit.com/wp-content/uploads/2023/11/Speedy-Beef-Teriyaki-9.webp", "cuisine": "Japanese", "decsription":"Grilled meat glazed with sweet soy sauce", "waiting": 10},
              {"name": "Tuna Sashimi", "price": 1250, "image_url": "https://getfish.com.au/cdn/shop/articles/Step_3_-_Tuna_Sashimi.png?v=1717040042", "cuisine": "Japanese", "decsription":"Sliced raw fish, served with soy sauce", "waiting": 12}
          ],
@@ -65,7 +65,7 @@ outlet_data = [
          ],
          "Kids Menu": [
              {"name": "Kid's Sushi Roll", "price": 700, "image_url": "https://kidseatincolor.com/wp-content/uploads/2022/04/Avocado-Sushi-Roll.jpg", "cuisine": "Japanese", "decsription":"foodie eats", "waiting": 8},
-             {"name": "Onigiri", "price": 450, "image_url": "ghttps://moribyan.com/wp-content/uploads/2023/01/IMG_8680-2-735x1024.jpg", "cuisine": "Japanese", "decsription":"Rice balls with Tuna or Salmon fillings", "waiting": 5}
+             {"name": "Onigiri", "price": 450, "image_url": "https://moribyan.com/wp-content/uploads/2023/01/IMG_8680-2-735x1024.jpg", "cuisine": "Japanese", "decsription":"Rice balls with Tuna or Salmon fillings", "waiting": 5}
          ],
          "Snacks": [
              {"name": "Tempura", "price": 800, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG09VdSKMlO8VhwgFLSZQRZhg_fAvYPKwT5Q&s", "cuisine": "Japanese", "decsription":"Deep fried Tempura", "waiting": 17},
@@ -78,7 +78,7 @@ outlet_data = [
      }
     },
 
-    {"name": "Mayora Indian cuisine", "image_url": "https://images.pexels.com/photos/28125427/pexels-photo-28125427/free-photo-of-naan-roti-tarkari-everest-tandoori-kitchen.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    {"name": "Mayora Indian cuisine", "image_url": "https://res.cloudinary.com/hz3gmuqw6/image/upload/c_fill,q_auto,w_750/f_auto/tk-traditional-indian-foods-to-taste-in-2022-phpEXAXNS",
         "menus": {
          "Starter": [
              {"name": "Samosa", "price": 250, "image_url": "https://satyamskitchen.com/wp-content/uploads/2021/05/website-700x525.jpg", "cuisine": "Indian", "description": "Deep fried pastry with mince meat stuffings", "waiting": 5},
@@ -108,7 +108,7 @@ outlet_data = [
         }
     },
 
-    {"name": "Steak House Supreme", "image_url": "https://images.pexels.com/photos/236887/pexels-photo-236887.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    {"name": "Steak House Supreme", "image_url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/27/dd/c2/22/tomahawk-wagyu.jpg",
         "menus": {
          "Starter": [
              {"name": "Shrimp cocktails", "price": 1450, "image_url": "https://www.foodandwine.com/thmb/eJbvl3xF29aslGsseo5ekZrmL0s=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Dirty-Martini-Shrimp-Cocktail-FT-Recipe0624-17d9fd13705a402da5d673053929ba6a.jpg", "cuisine": "American", "description": "Chilled shrimp served with cocktail horseradish sauce", "waiting": 10},
@@ -188,7 +188,7 @@ outlet_data = [
              {"name": "Tamales", "price": 800, "image_url": "https://keviniscooking.com/wp-content/uploads/2023/08/Pork-Tamales-Rojos-sauce.jpg", "cuisine": "Mexican", "description": "Doudh filled with cheese or shredded chicken", "waiting": 10}
          ],
          "Snacks": [
-             {"name": "Mexican Rice", "price": 600, "image_url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fdamndelicious.net%2F2014%2F03%2F12%2Fmexican-rice%2F&psig=AOvVaw0zu3fxgcE1fUDWsJ7c_vPZ&ust=1740324321704000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJji77jL14sDFQAAAAAdAAAAABAE", "cuisine": "Mexican", "description": "Fluffy rice", "waiting": 10},
+             {"name": "Mexican Rice", "price": 600, "image_url": "https://www.howtocook.recipes/wp-content/uploads/2021/01/Mexican-rice-recipe-500x500.jpg", "cuisine": "Mexican", "description": "Fluffy rice", "waiting": 10},
              {"name": "Pico de Gallo", "price": 400, "image_url": "https://cookieandkate.com/images/2018/09/best-pico-de-gallo-recipe-2.jpg", "cuisine": "Mexican", "description": "Fresh salsa made from tomatoes, onions, cilantro, lime and chilli", "waiting": 10}
          ],
          "Drinks": [
@@ -237,7 +237,7 @@ outlet_data = [
          "Main Course": [
              {"name": "Moambe Chicken", "price": 3200, "image_url": "https://explorers.kitchen/wp-content/uploads/2016/01/Congo-Moambe-Chicken-13.jpg", "cuisine": "Congolese", "category": "Main Course","description": " ", "waiting": 20},
              {"name": "Fufu and Sese", "price": 1100, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyhaZwiihLG4n5HAtw-PhkucNfvBKVl8yrIA&s", "cuisine": "Congolese", "decsription":"pounded cassava or plantains served with goat stew", "waiting": 10},
-             {"name": "Poulet à la Braise", "price": 1250, "image_url": "https://warehouse.canal-overseas.com/content/0001/09/c371caca888fd57c81891893298e263618393ed9.jpeg", "cuisine": "Congolese", "decsription":"Chicken Marinated in a blend of spices grilled over an open flame.", "waiting": 12}
+             {"name": "Poulet a la Braise", "price": 1250, "image_url": "https://warehouse.canal-overseas.com/content/0001/09/c371caca888fd57c81891893298e263618393ed9.jpeg", "cuisine": "Congolese", "decsription":"Chicken Marinated in a blend of spices grilled over an open flame.", "waiting": 12}
          ],
          "Dessert": [
               {"name": "Chin Chin", "price": 400, "image_url": "https://www.mydiasporakitchen.com/wp-content/uploads/2021/04/5B32CC1A-7B2F-4283-B22B-F90FADE6F21B.jpeg", "cuisine": "Congolese", "decsription":"Sweet crucnhy fried dough", "waiting": 5},
@@ -335,7 +335,7 @@ outlet_data = [
          ],
          "Snacks": [
              {"name": "Coconut sweets", "price": 300, "image_url": "https://spicesnflavors.com/wp-content/uploads/2017/09/rose-ladoo-1-min.jpg", "cuisine": "Swahili", "decsription":"Made from granulated sugar and water and grated coconut", "waiting": 17},
-             {"name": "Kaimati", "price": 350, "image_url": "https://lh3.googleusercontent.com/proxy/UdDfWL0LUuR6Bdh8H_l4zgZLeST7tHs-GfMRSQ6m_lIW_Eytf5HWXiMYAXcw5BgAKoHNwnyLqHJiKpbWqBeIY2ueyPnT6LzFktvmJcVeMA", "cuisine": "Swahili", "decsription":"Sweet coconut pastry coated with sugar", "waiting": 15}
+             {"name": "Kaimati", "price": 350, "image_url": "https://cdn.tuko.co.ke/images/1120/dfb65538fc34618d.jpeg?v=1", "cuisine": "Swahili", "decsription":"Sweet coconut pastry coated with sugar", "waiting": 15}
          ],
          "Drinks": [
              {"name": "Coconut water", "price": 300, "image_url": "https://i.ndtvimg.com/i/2017-09/coconut-water_650x400_71506595070.jpg?q=50", "cuisine": "Swahili", "decsription":"Water from the Coconut", "waiting": 5},
