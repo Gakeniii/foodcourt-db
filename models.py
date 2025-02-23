@@ -49,6 +49,7 @@ class OwnerMenu(db.Model):
     cuisine = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     waiting = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String, nullable=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
 
