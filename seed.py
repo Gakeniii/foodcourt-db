@@ -1,5 +1,5 @@
 from app import app
-from models import db, User, Outlet, OwnerMenu, MenuItem, Order, OrderItem, TableBooking
+from models import db, User, Outlet, OwnerMenu, MenuItem, Order, TableBooking
 from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash
 from sqlalchemy.dialects.postgresql import insert
@@ -81,7 +81,7 @@ outlet_data = [
     {"name": "Mayora Indian cuisine", "image_url": "https://res.cloudinary.com/hz3gmuqw6/image/upload/c_fill,q_auto,w_750/f_auto/tk-traditional-indian-foods-to-taste-in-2022-phpEXAXNS",
         "menus": {
          "Starter": [
-             {"name": "Samosa", "price": 250, "image_url": "https://satyamskitchen.com/wp-content/uploads/2021/05/website-700x525.jpg", "cuisine": "Indian", "description": "Deep fried pastry with mince meat stuffings", "waiting": 5},
+             {"name": "Samosa", "price": 250, "image_url": "https://www.ohmyveg.co.uk/wp-content/uploads/2021/10/Samosa-1-e1722866243103-720x720.jpg", "cuisine": "Indian", "description": "Deep fried pastry with mince meat stuffings", "waiting": 5},
              {"name": "Pan Puri", "price": 400, "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Pani_Puri1.JPG", "cuisine": "Indian", "description": "Deep fried balls with meat filling", "waiting": 9}
          ],
          "Main Course": [
@@ -120,12 +120,12 @@ outlet_data = [
              {"name": "T-Bone steak", "price": 1100, "image_url": "https://richmeats.capetown/wp-content/uploads/2017/03/T-Bone-1.jpg", "cuisine": "American", "description": "Tenderloin grilled to perfetion", "waiting": 25}
          ],
          "Desert": [
-              {"name": "Cheese cake", "price": 700, "image_url": "https://www.lecremedelacrumb.com/wp-content/uploads/2019/03/steak-potatoes-skillet-3.jpg", "cuisine": "American", "description": "Creamy cheesecake topped with fruit, caramel and chocolate sauce", "waiting": 5},
-              {"name": "Creme Brulee", "price": 800, "image_url": "https://www.lecremedelacrumb.com/wp-content/uploads/2019/03/steak-potatoes-skillet-3.jpg", "cuisine": "American", "description": "Silky  custard topped with a layer of caramelized sugar", "waiting": 9}
+              {"name": "Cheese cake", "price": 700, "image_url": "https://www.inspiredtaste.net/wp-content/uploads/2024/04/New-York-Cheesecake-Recipe-Video.jpg", "cuisine": "American", "description": "Creamy cheesecake topped with fruit, caramel and chocolate sauce", "waiting": 5},
+              {"name": "Creme Brulee", "price": 800, "image_url": "https://www.recipetineats.com/tachyon/2016/09/Creme-Brulee_8-SQ.jpg", "cuisine": "American", "description": "Silky  custard topped with a layer of caramelized sugar", "waiting": 9}
          ],
          "Kids Menu": [
              {"name": "Mini Steaks", "price": 1000, "image_url": "https://www.lecremedelacrumb.com/wp-content/uploads/2019/03/steak-potatoes-skillet-3.jpg", "cuisine": "American", "description": "Mini steaks", "waiting": 8},
-             {"name": "Chicken tenders", "price": 800, "image_url": "https://www.lecremedelacrumb.com/wp-content/uploads/2019/03/steak-potatoes-skillet-3.jpg", "cuisine": "American", "description": "Crisp breaded chicken strips", "waiting": 10}
+             {"name": "Chicken tenders", "price": 800, "image_url": "https://foxeslovelemons.com/wp-content/uploads/2023/05/Buttermilk-Chicken-Tenders-6.jpg", "cuisine": "American", "description": "Crisp breaded chicken strips", "waiting": 10}
          ],
          "Snacks": [
              {"name": "Mini Quesadillas", "price": 600, "image_url": "https://s23209.pcdn.co/wp-content/uploads/2022/05/Mini-Chicken-Quesadillas211015_DAMN-DELICIOUS_Mini-Chicken-Quesadillas_030-760x1140.jpg", "cuisine": "American", "description": "Small cheesy tortillas", "waiting": 10},
@@ -155,7 +155,7 @@ outlet_data = [
          ],
          "Kids Menu": [
              {"name": "Mini Steaks", "price": 1000, "image_url": "https://www.lecremedelacrumb.com/wp-content/uploads/2019/03/steak-potatoes-skillet-3.jpg", "cuisine": "French", "description": "Mini steaks", "waiting": 8},
-             {"name": "Chicken tenders", "price": 800, "image_url": "https://www.lecremedelacrumb.com/wp-content/uploads/2019/03/steak-potatoes-skillet-3.jpg", "cuisine": "French", "description": "Crisp breaded chicken strips", "waiting": 10}
+             {"name": "Chicken tenders", "price": 800, "image_url": "https://foxeslovelemons.com/wp-content/uploads/2023/05/Buttermilk-Chicken-Tenders-6.jpg", "cuisine": "French", "description": "Crisp breaded chicken strips", "waiting": 10}
          ],
          "Snacks": [
              {"name": "Pomme Frites", "price": 600, "image_url": "https://www.joyfulhealthyeats.com/wp-content/uploads/2023/03/Crispy-Air-Fryer-Pomme-Frites-web-12.jpg", "cuisine": "French", "description": "Crispy french fries", "waiting": 10},
@@ -202,7 +202,7 @@ outlet_data = [
      "menus": {
          "Starter": [
              {"name": "Spring rolls", "price": 400, "image_url": "https://saltedmint.com/wp-content/uploads/2024/01/Vegetable-Spring-Rolls-4-500x375.jpg", "cuisine": "Chinese", "decsription":"Crispy rolls with filling", "waiting": 5},
-             {"name": "Dumplings", "price": 500, "image_url": "https://thebigmansworld.com/wp-content/uploads/2023/02/chicken-chow-mein-recipe.jpg", "cuisine": "Chinese", "decsription":"Pork fillings", "waiting": 4}
+             {"name": "Dumplings", "price": 500, "image_url": "https://myriadrecipes.com/wp-content/uploads/2023/07/IMG_8510-scaled.jpg", "cuisine": "Chinese", "decsription":"Pork fillings", "waiting": 4}
          ],
          "Main Course": [
              {"name": "Chow mein", "price": 1900, "image_url": "https://thebigmansworld.com/wp-content/uploads/2023/02/chicken-chow-mein-recipe.jpg", "cuisine": "Chinese","description": "Stir fried noodles with vegetables and meat of choice", "waiting": 20},
@@ -211,7 +211,7 @@ outlet_data = [
          ],
          "Dessert": [
               {"name": "Fortune cookies", "price": 100, "image_url": "https://lilluna.com/wp-content/uploads/2021/09/fortune-cookies-resize-6.jpg", "cuisine": "Chinese", "decsription":"Cookies with a small fortune message inside", "waiting": 5},
-              {"name": "Chinese Almond cookies", "price": 350, "image_url": "https://lilluna.com/wp-content/uploads/2021/09/fortune-cookies-resize-6.jpg", "cuisine": "Chinese", "decsription":"Cookies with almond filling", "waiting": 5}
+              {"name": "Chinese Almond cookies", "price": 350, "image_url": "https://simply2moms.com/wp-content/uploads/2024/02/Chinese-Almond-Cookies-720x720.jpg", "cuisine": "Chinese", "decsription":"Cookies with almond filling", "waiting": 5}
          ],
          "Kids Menu": [
              {"name": "Steamed Buns", "price": 700, "image_url": "https://omnivorescookbook.com/wp-content/uploads/2021/07/210714_Steamed-Pork-Buns-with-Chive_550.jpg", "cuisine": "Chinese", "decsription":"foodie eats", "waiting": 8},
@@ -262,7 +262,7 @@ outlet_data = [
          ],
          "Main Course": [
              {"name": "Kebab", "price": 3200, "image_url": "https://cookingorgeous.com/wp-content/uploads/2021/06/lamb-shish-kebab-20.jpg", "cuisine": "Turkish", "description": "Grilled meat on a Skewer", "waiting": 20},
-             {"name": "Lahmacun", "price": 1100, "image_url": "https://simplehomeedit.com/wp-content/uploads/2023/11/Speedy-Beef-Teriyaki-9.webp", "cuisine": "Turkish", "decsription":"Turkish pizza", "waiting": 30},
+             {"name": "Lahmacun", "price": 1100, "image_url": "https://cdn77-s3.lazycatkitchen.com/wp-content/uploads/2021/03/vegan-turkish-pizza-lahmacun-1000x1500.jpg", "cuisine": "Turkish", "decsription":"Turkish pizza", "waiting": 30},
              {"name": "Manti", "price": 1250, "image_url": "https://www.panningtheglobe.com/wp-content/uploads/2013/11/turkish-manti-web-final.jpg", "cuisine": "Turkish", "decsription":"Turkish dumplings filled with mined meat", "waiting": 20}
          ],
          "Dessert": [
@@ -317,7 +317,7 @@ outlet_data = [
     {"name": "Kabudas Eats", "image_url": "https://www.nairobinationalparkkenya.com/wp-content/uploads/2024/02/132045025_1575383172669460_8723750846461443503_o-573305f0836c4744a37867458d78e888-750x450.jpg",
      "menus": {
          "Starter": [
-             {"name": "Chilli prawns", "price": 500, "image_url": "https://img-global.cpcdn.com/recipes/e16e61be3886271d/1200x630cq70/photo.jpg", "cuisine": "Swahili", "decsription":"Marinated shrimp served with a tangy sauce", "waiting": 5},
+             {"name": "Chilli prawns", "price": 500, "image_url": "https://www.marionskitchen.com/wp-content/uploads/2019/05/Sichuan-Chilli-Prawns3-1200x1500.jpg", "cuisine": "Swahili", "decsription":"Marinated shrimp served with a tangy sauce", "waiting": 5},
              {"name": "Samosa", "price": 450, "image_url": "https://i.pinimg.com/736x/ed/a0/ed/eda0ed6d360b4f3403b93083b165a3e3.jpg", "cuisine": "Swahili", "decsription":"Deeps fried round potateos dipped in a buttery sauce", "waiting": 4}
          ],
          "Main Course": [
@@ -326,12 +326,12 @@ outlet_data = [
              {"name": "Nyama Choma", "price": 1500, "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Nyama_Choma_%28BBQ_the_Kenyan_way%29.jpg", "cuisine": "Swahili", "decsription":"Grilled meat typically goat, served with Ugali and kachumbari", "waiting": 30}
          ],
          "Dessert": [
-              {"name": "Coconut Milk Pudding", "price": 300, "image_url": "https://img-global.cpcdn.com/recipes/04a5574be74c325d/400x400cq70/photo.jpg", "cuisine": "Swahili", "decsription":"Mixture of fruits", "waiting": 5},
-              {"name": "Tropical Fruit salad", "price": 450, "image_url": "https://img-global.cpcdn.com/recipes/04a5574be74c325d/400x400cq70/photo.jpg", "cuisine": "Swahili", "decsription":"Creamy dessert made from coconut milk, sugar and cornstarch", "waiting": 5}
+              {"name": "Coconut Milk Pudding", "price": 300, "image_url": "https://thenovicechefblog.com/wp-content/uploads/2024/04/Coconut-Rice-Pudding-Recipe.jpeg", "cuisine": "Swahili", "decsription":"Mixture of fruits", "waiting": 5},
+              {"name": "Tropical Fruit salad", "price": 450, "image_url": "https://www.momontimeout.com/wp-content/uploads/2016/05/tropical-fruit-salad-squared.jpeg", "cuisine": "Swahili", "decsription":"Creamy dessert made from coconut milk, sugar and cornstarch", "waiting": 5}
          ],
          "Kids Menu": [
              {"name": "Mahamri", "price": 400, "image_url": "https://img-global.cpcdn.com/recipes/04a5574be74c325d/400x400cq70/photo.jpg", "cuisine": "Swahili", "decsription":"Sweet coconut pastry", "waiting": 8},
-             {"name": "Keki ya nazi", "price": 450, "image_url": "https://spicesnflavors.com/wp-content/uploads/2017/09/rose-ladoo-1-min.jpg", "cuisine": "Swahili", "decsription":"Moist coconut cake", "waiting": 5}
+             {"name": "Keki ya nazi", "price": 450, "image_url": "https://tatyanaseverydayfood.com/wp-content/uploads/2019/03/Coconut-Italian-Wedding-Cake-recipe-2.jpg", "cuisine": "Swahili", "decsription":"Moist coconut cake", "waiting": 5}
          ],
          "Snacks": [
              {"name": "Coconut sweets", "price": 300, "image_url": "https://spicesnflavors.com/wp-content/uploads/2017/09/rose-ladoo-1-min.jpg", "cuisine": "Swahili", "decsription":"Made from granulated sugar and water and grated coconut", "waiting": 17},
@@ -357,8 +357,8 @@ with app.app_context():
     fake = Faker()
 
     NUM_OWNERS = 12
-    NUM_CUSTOMERS = 30
-    MAX_ORDERS = 40
+    NUM_CUSTOMERS = 20
+    MAX_ORDERS = 20
 
     user_data = []
     for _ in range(NUM_OWNERS):
@@ -442,6 +442,7 @@ with app.app_context():
         
         for menu_item in outlet_menu_items:
             description = menu_item.description if menu_item.description else "No description available"
+
             owner_menu = OwnerMenu(
                 owner_id=owner.id,
                 outlet_id=outlet.id,
@@ -461,63 +462,77 @@ with app.app_context():
 
     orders = []
     order_count = 0
+    # MAX_ORDERS = 20  # Set max orders limit
 
-    random.shuffle(customers)
+    random.shuffle(customers)  # Shuffle customers for randomness
+
     for customer in customers:
         if order_count >= MAX_ORDERS:
             break
 
-        num_orders = random.randint(1, 3)
+        num_orders = random.randint(1, 3)  # Each customer can have 1-3 orders
         for _ in range(num_orders):
             if order_count >= MAX_ORDERS:
                 break
+
+            order_items = []  # Store order items as a list of dicts
+            total_price = 0.0  # Initialize total price
+
+            for _ in range(random.randint(1, 3)):  # Each order has 1-3 items
+                menu_item = random.choice(menu_items)
+                quantity = random.randint(1, 20)
+                item_price = menu_item.price * quantity  # Calculate item total price
+                
+                order_items.append({
+                    "menu_item_id": menu_item.id,
+                    "menu_item_name": menu_item.name,
+                    "menu_item_price": menu_item.price,
+                    "menu_item_image": menu_item.image_url,
+                    "quantity": quantity,
+                    "payment_method": random.choice(payment_methods),
+                    "total_price": round(item_price, 2)  # Ensure price is rounded
+                })
+                
+                total_price += item_price  # Accumulate total order price
+            
+            # Create Order instance
             order = Order(
                 customer_id=customer.id,
                 outlet_id=random.choice(outlets).id,
                 status=random.choice(order_statuses),
-                table_number=random.randint(1, 20)
+                table_number=random.randint(1, 20),
+                order_items=order_items,  # Store JSON order items
+                total_price=round(total_price, 2)  # Ensure proper total price
             )
             orders.append(order)
             order_count += 1
 
     db.session.add_all(orders)
     db.session.commit()
-    print(f"✅Database seeded successfully with {len(orders)} Orders!")
+    print(f"✅ Database seeded successfully with {len(orders)} Orders!")
 
-    order_items = []
-    for order in orders:
-        for _ in range(random.randint(1, 3)):
-            menu_item = random.choice(menu_items)
-            quantity = random.randint(1, 20)
-            total_price = float(menu_item.price) * quantity
-            
-            order_item = OrderItem(
-                order_id=order.id,
-                menu_item_id=menu_item.id,
-                quantity=quantity,
-                payment_method=random.choice(payment_methods),
-                total_price=total_price
-            )
-            order_items.append(order_item)
-        
-        order.total_price = sum([item.total_price for item in order_items if item.order_id == order.id])
-    
-    db.session.add_all(order_items)
-    db.session.commit()
-    print(f"✅ Database seeded successfully with {len(order_items)} Order Items data!")
+
 
     bookings = []
     for _ in range(10):
-        booking_time = datetime.now(timezone.utc) + timedelta(days=random.randint(1, 10), hours=random.randint(1, 24))
+        future_booking_time = datetime.now(timezone.utc) + timedelta(
+            days=random.randint(1, 10),  
+            hours=random.randint(1, 24)
+        )
+
         booking = TableBooking(
-            customer_id=random.choice(customers).id,
-            table_number=random.randint(1, 20),
-            booking_time=booking_time
+            customer_id=random.choice(customers).id,  # Assuming `customers` list exists
+            table_number=random.randint(1, 20),  # Ensures valid table number
+            booking_time=future_booking_time,
+            available=True  # Default available status
         )
         bookings.append(booking)
+    
     db.session.add_all(bookings)
     db.session.commit()
-    print("Database seeded successfully with Table bookings data!")
+    
+    print("✅ Database successfully seeded with Table Booking data!")
+
 
     
     print("Database seeded successfully!")
