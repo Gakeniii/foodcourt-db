@@ -1,5 +1,5 @@
 from app import app
-from models import db, User, Outlet, OwnerMenu, MenuItem, Order, OrderItem, TableBooking
+from models import db, User, Outlet, OwnerMenu, MenuItem, Order, TableBooking
 from datetime import datetime, timedelta, timezone
 from werkzeug.security import generate_password_hash
 from sqlalchemy.dialects.postgresql import insert
@@ -482,27 +482,27 @@ with app.app_context():
     db.session.commit()
     print(f"✅Database seeded successfully with {len(orders)} Orders!")
 
-    order_items = []
-    for order in orders:
-        for _ in range(random.randint(1, 3)):
-            menu_item = random.choice(menu_items)
-            quantity = random.randint(1, 20)
-            total_price = float(menu_item.price) * quantity
+    # order_items = []
+    # for order in orders:
+    #     for _ in range(random.randint(1, 3)):
+    #         menu_item = random.choice(menu_items)
+    #         quantity = random.randint(1, 20)
+    #         total_price = float(menu_item.price) * quantity
             
-            order_item = OrderItem(
-                order_id=order.id,
-                menu_item_id=menu_item.id,
-                quantity=quantity,
-                payment_method=random.choice(payment_methods),
-                total_price=total_price
-            )
-            order_items.append(order_item)
+    #         order_item = OrderItem(
+    #             order_id=order.id,
+    #             menu_item_id=menu_item.id,
+    #             quantity=quantity,
+    #             payment_method=random.choice(payment_methods),
+    #             total_price=total_price
+    #         )
+    #         order_items.append(order_item)
         
-        order.total_price = sum([item.total_price for item in order_items if item.order_id == order.id])
+    #     order.total_price = sum([item.total_price for item in order_items if item.order_id == order.id])
     
-    db.session.add_all(order_items)
-    db.session.commit()
-    print(f"✅ Database seeded successfully with {len(order_items)} Order Items data!")
+    # db.session.add_all(order_items)
+    # db.session.commit()
+    # print(f"✅ Database seeded successfully with {len(order_items)} Order Items data!")
 
     bookings = []
     for _ in range(10):
