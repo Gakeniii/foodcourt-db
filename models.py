@@ -49,7 +49,6 @@ class OwnerMenu(db.Model):
     cuisine = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
     waiting = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.String, nullable=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
 
@@ -103,7 +102,6 @@ class MenuItem(db.Model):
         owner_menu_id= db.Column(db.Integer, db.ForeignKey('ownermenu.id'), nullable=True)
 
         outlet = db.relationship('Outlet', back_populates='menu_items')
-        orders = relationship('OrderItem', back_populates='menu_item')
         owner_menu = relationship('OwnerMenu', back_populates='menu_items')
 
         @validates('price')
@@ -120,10 +118,10 @@ class MenuItem(db.Model):
                 'image_url': self.image_url,
                 'cuisine': self.cuisine,
                 'category': self.category,
-                'description':self.description,
+                'description': self.description,
+                'waiting': self.waiting,
                 'owner_menu_id': self.owner_menu_id
             }
-
 
 class Order(db.Model):
     __tablename__ = 'orders'
@@ -136,13 +134,12 @@ class Order(db.Model):
     status = db.Column(db.String(20), default="Pending")
     total_price = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=func.now())  
+    order_items = db.Column(db.JSON, nullable=False, default=[])  # Store items as JSON
 
     outlet = db.relationship('Outlet', back_populates='orders')
     customer = db.relationship('User', back_populates='orders')
     table_booking = db.relationship('TableBooking', back_populates='orders', overlaps="orders")
-    order_items = db.relationship('OrderItem', back_populates='order')
     
-
     @validates('table_number')
     def validate_table_number(self, key, table_number):
         if table_number and (table_number < 1 or table_number > 20):  
@@ -155,61 +152,52 @@ class Order(db.Model):
         if status not in valid_statuses:
             raise ValueError("Invalid status")
         return status
-
     
     def to_dict(self):
+        from models import MenuItem  # Avoid circular import issues
+
         return {
             'id': self.id,
             'customer_id': self.customer_id,
             'outlet_id': self.outlet_id,
+            'outlet_name': self.outlet.name if self.outlet else None,  # Fetch outlet name
             'table_booking_id': self.table_booking_id,
             'table_number': self.table_number,
             'status': self.status,
             'total_price': self.total_price,
             'created_at': self.created_at.isoformat(),
-            'order_items': [item.to_dict() for item in self.order_items]
+            'order_items': [
+                {
+                    'menu_item_id': item['menu_item_id'],
+                    'menu_item_name': db.session.get(MenuItem, item['menu_item_id']).name if db.session.get(MenuItem, item['menu_item_id']) else None,
+                    'menu_item_price': db.session.get(MenuItem, item['menu_item_id']).price if db.session.get(MenuItem, item['menu_item_id']) else None,
+                    'menu_item_image': db.session.get(MenuItem, item['menu_item_id']).image_url if db.session.get(MenuItem, item['menu_item_id']) else None,
+                    'quantity': item['quantity'],
+                    'payment_method': item['payment_method'],
+                    'total_price': item['total_price'],
+                }
+                for item in self.order_items
+            ]
         }
 
 
-class OrderItem(db.Model):
-    __tablename__ = 'orderitem'
-    __table_args__ = {'extend_existing': True}
-
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
-    menu_item_id = db.Column(db.Integer, db.ForeignKey('menuitem.id'), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    payment_method = db.Column(db.String, nullable=False)
-    total_price = deferred(db.Column(db.Float, nullable=False))
-
-
-    order = db.relationship('Order', back_populates='order_items')
-    menu_item = db.relationship('MenuItem', back_populates='orders')
-
-    @validates('quantity')
-    def validate_quantity(self, key, quantity):
-        if quantity < 1:
-            raise ValueError("Quantity must be at least 1")
-        return quantity
-
-    def to_dict(self):
-        return{
-            'id': self.id,
-            'order_id': self.order_id,
-            'menu_item_id': self.menu_item_id,
-            'menu_item_name': self.menu_item.name,
-            'image_url': self.menu_item.image_url, 
-            'quantity': self.quantity,
-            'payment_method': self.payment_method,
-            'total_price': self.total_price
-    }
-
-@event.listens_for(OrderItem, 'before_insert')
-@event.listens_for(OrderItem, 'before_update')
-def set_total_price(mapper, connection, target):
-    menu_item = db.session.get(MenuItem, target.menu_item_id)
-    if menu_item and target.total_price is None:  # Prevent unnecessary updates
-        target.total_price = target.quantity * menu_item.price
+    def add_order_item(self, menu_item_id, quantity, payment_method):
+        menu_item = db.session.get(MenuItem, menu_item_id)
+        if not menu_item:
+            raise ValueError("Menu item not found")
+        
+        item_total = quantity * menu_item.price
+        order_item = {
+            'menu_item_id': menu_item_id,
+            'menu_item_name': menu_item.name,
+            'image_url': menu_item.image_url,
+            'quantity': quantity,
+            'payment_method': payment_method,
+            'total_price': item_total
+        }
+        
+        self.order_items.append(order_item)
+        self.total_price += item_total
 
 
 class TableBooking(db.Model):
