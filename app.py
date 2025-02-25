@@ -392,9 +392,9 @@ class OrderResource(Resource):
             return {"error": "Order items are required and must be a list."}, 400
 
         # Validate customer
-        customer = User.query.get(customer_id)
-        if not customer:
-            return {"error": "Customer not found"}, 404
+        # customer = User.query.get(customer_id)
+        # if not customer:
+        #     return {"error": "Customer not found"}, 404
 
         # Validate table booking
         existing_booking = TableBooking.query.filter_by(customer_id=customer_id).first()

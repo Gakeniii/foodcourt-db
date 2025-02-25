@@ -134,9 +134,9 @@ class Order(db.Model):
     table_booking_id = db.Column(db.Integer, db.ForeignKey('table_bookings.id'), nullable=True)
     table_number = db.Column(db.Integer, nullable=True)
     status = db.Column(db.String(20), default="Pending")
-    total_price = db.Column(db.Float, default=0.0)  # Order total price
+    total_price = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=func.now())
-    order_items = db.Column(db.JSON, nullable=False, default=[])  # Store items as JSON
+    order_items = db.Column(db.JSON, nullable=False, default=[])
 
     outlet = db.relationship('Outlet', back_populates='orders')
     customer = db.relationship('User', back_populates='orders')
@@ -156,7 +156,7 @@ class Order(db.Model):
         return status
 
     def to_dict(self):
-        from models import MenuItem  # Avoid circular import issues
+        from models import MenuItem
 
         return {
             'id': self.id,
@@ -166,7 +166,7 @@ class Order(db.Model):
             'table_booking_id': self.table_booking_id,
             'table_number': self.table_number,
             'status': self.status,
-            'total_price': round(self.total_price, 2),  # Ensure two decimal places
+            'total_price': round(self.total_price, 2),
             'created_at': self.created_at.isoformat(),
             'order_items': [
                 {
@@ -183,13 +183,13 @@ class Order(db.Model):
         }
 
     def add_order_item(self, menu_item_id, quantity, payment_method):
-        from models import MenuItem  # Avoid circular import issues
+        from models import MenuItem
 
         menu_item = db.session.get(MenuItem, menu_item_id)
         if not menu_item:
             raise ValueError("Menu item not found")
 
-        item_total = round(quantity * menu_item.price, 2)  # Ensure price is correct
+        item_total = round(quantity * menu_item.price, 2)
 
         order_item = {
             'menu_item_id': menu_item_id,
@@ -197,16 +197,15 @@ class Order(db.Model):
             'image_url': menu_item.image_url,
             'quantity': quantity,
             'payment_method': payment_method,
-            'total_price': item_total  # Store the correct total price
+            'total_price': item_total
         }
 
         self.order_items.append(order_item)
-        self.total_price = sum(item['total_price'] for item in self.order_items)  # Update total order price
+        self.total_price = sum(item['total_price'] for item in self.order_items)
 
 @event.listens_for(Order, 'before_insert')
 @event.listens_for(Order, 'before_update')
 def set_total_price(mapper, connection, target):
-    """ Ensure total price is correctly calculated before inserting/updating. """
     target.total_price = sum(item['total_price'] for item in target.order_items)
 
 

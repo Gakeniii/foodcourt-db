@@ -513,23 +513,39 @@ with app.app_context():
 
 
 
+
     bookings = []
+    booked_tables = set()  # Track booked tables
+
     for _ in range(10):
         future_booking_time = datetime.now(timezone.utc) + timedelta(
             days=random.randint(1, 10),  
             hours=random.randint(1, 24)
         )
 
+        table_number = random.randint(1, 20)  # Generate table number
+        while table_number in booked_tables:  # Ensure unique booked tables
+            table_number = random.randint(1, 20)
+
+        booked_tables.add(table_number)  # Mark table as booked
+
         booking = TableBooking(
             customer_id=random.choice(customers).id,  # Assuming `customers` list exists
-            table_number=random.randint(1, 20),  # Ensures valid table number
+            table_number=table_number,
             booking_time=future_booking_time,
-            available=True  # Default available status
+            available=False  # Mark as booked
         )
         bookings.append(booking)
-    
+
     db.session.add_all(bookings)
     db.session.commit()
+
+    # Get available tables (Tables 1-20 that are NOT in booked_tables)
+    all_tables = set(range(1, 21))
+    available_tables = list(all_tables - booked_tables)
+
+    print("Available Tables:", available_tables)  # Debugging: Shows available tables
+
     
     print("✅ Database successfully seeded with Table Booking data!")
 
