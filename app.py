@@ -5,6 +5,7 @@ import os
 from flask import Flask, request, jsonify, make_response
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_cors import cross_origin
 from flask_restful import Api, Resource
 from dotenv import load_dotenv
 from sqlalchemy.orm.exc import NoResultFound
@@ -37,7 +38,18 @@ db.init_app(app)
 api = Api(app)
 jwt = JWTManager(app)
 
-CORS(app,  supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = make_response(jsonify({"message": "CORS preflight passed"}), 200)
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+
 
 
 class UserResource(Resource):
@@ -231,25 +243,44 @@ class OutletResource(Resource):
             'orders': [{'id': order.id, 'status': order.status} for order in outlet.orders]
         })
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
 
-        owner = User.query.get(data.get('owner_id'))
+        if not data:
+            return {"error": "Invalid JSON data"}, 400
+        
+        if "name" not in data:
+            return {"error": "Missing required field: 'name'"}, 400
+        if "image_url" not in data:
+            return {"error": "Missing required field: 'image_url'"}, 400
+        
+        user_identity = get_jwt_identity()  # 🔹 Might be returning a dict instead of a simple user ID
+        current_user_id = user_identity.get("id") if isinstance(user_identity, dict) else user_identity
+
+        if not isinstance(current_user_id, int):
+            return {"error": "Invalid token data"}, 400
+        
+        owner = User.query.get(current_user_id)
+
         if not owner or owner.role != 'Owner':
             return jsonify({'error': 'Invalid owner id. User must have role "Owner".'}), 400
         
-        outlet = Outlet(name=data['name'], owner_id=data['owner_id'], image_url=data['image_url'])
+        outlet = Outlet(
+            name=data['name'],
+            owner_id=current_user_id,
+            image_url=data["image_url"]
+        )
         db.session.add(outlet)
         db.session.commit()
 
-        return jsonify({
+        return {
             'message': 'Outlet created successfully',
             'id': outlet.id,
             'image_url': outlet.image_url,
             'name': outlet.name,
             'owner_id': outlet.owner_id,
-            'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None
-        })
+        }, 201
     
     def patch(self, outlet_id):
         outlet = Outlet.query.get_or_404(outlet_id)
@@ -308,6 +339,7 @@ class MenuItemResource(Resource):
             'outlet': {'id': menu_item.outlet.id, 'name': menu_item.outlet.name} if menu_item.outlet else None
         }
 
+    @cross_origin(origins="http://localhost:3000", supports_credentials=True)
     def post(self):
         data = request.get_json()
 
@@ -320,12 +352,6 @@ class MenuItemResource(Resource):
             outlet = Outlet.query.get(data['outlet_id'])
             if not outlet:
                 return {"error": "Outlet not found"}, 404
-
-            owner_menu = OwnerMenu.query.filter_by(outlet_id=outlet.id).first()
-
-            if not owner_menu:
-                return {"error": "Owner menu not found for this outlet"}, 404
-
             
             menu_item = MenuItem(
                 name=data['name'],
@@ -336,7 +362,6 @@ class MenuItemResource(Resource):
                 description=data.get('description'),
                 waiting=data['waiting'],
                 outlet_id=outlet.id,
-                owner_menu_id=owner_menu.id 
             )
 
             db.session.add(menu_item)
