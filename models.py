@@ -133,7 +133,7 @@ class Order(db.Model):
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
     table_booking_id = db.Column(db.Integer, db.ForeignKey('table_bookings.id'), nullable=True)
     table_number = db.Column(db.Integer, nullable=True)
-    status = db.Column(db.String(20), default="Confirmed")
+    status = db.Column(db.String(20), default="Pending")
     total_price = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=func.now())
     order_items = db.Column(db.JSON, nullable=False, default=[])

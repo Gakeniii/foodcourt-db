@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import os
+import eventlet
 
 from flask import Flask, request, jsonify, make_response
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_cors import cross_origin
+from flask_socketio import SocketIO
 from flask_restful import Api, Resource
 from dotenv import load_dotenv
 from sqlalchemy.orm.exc import NoResultFound
@@ -38,14 +40,21 @@ db.init_app(app)
 api = Api(app)
 jwt = JWTManager(app)
 
+
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected!")
+
 
 @app.before_request
 def handle_preflight():
     if request.method == "OPTIONS":
         response = make_response(jsonify({"message": "CORS preflight passed"}), 200)
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
         response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response
@@ -411,28 +420,19 @@ class OrderResource(Resource):
         data = request.get_json()
         customer_id = data.get('customer_id')
         outlet_id = data.get('outlet_id')
-        table_booking_id = data.get('table_booking_id')  # Optional
-        table_number = data.get('table_number')  # Optional
-        order_items_data = data.get('order_items')  # List of order items (menu item ids and quantities)
+        table_booking_id = data.get('table_booking_id')
+        table_number = data.get('table_number')
+        order_items_data = data.get('order_items')
 
-        # if not order_items_data or not isinstance(order_items_data, list):
-        #     return {"error": "Order items are required and must be a list."}, 400
         if TableBooking.query.filter_by(table_number=table_number).first():
             return {"error": "Table already booked"}, 400
-        
-
-        # Check if customer_id exists in the User table
-        # try:
-        #     customer = User.query.filter_by(id=customer_id).one()
-        # except NoResultFound:
-        #     return {"error": "Customer not found"}, 404
 
         new_order = Order(
             customer_id=customer_id,
             outlet_id=outlet_id,
             table_booking_id=table_booking_id,
             table_number=table_number,
-            order_items=[]  # Initialize empty
+            order_items=[]
         )
 
         total_price = 0
@@ -460,12 +460,8 @@ class OrderResource(Resource):
         order = Order.query.get_or_404(order_id)
         data = request.get_json()
 
-        # valid_statuses = ["Pending", "Confirmed", "Completed", "Cancelled"]
-        # if "status" in data and data["status"] not in valid_statuses:
-        #     return {"error": "Invalid status. Allowed values: 'Pending', 'Confirmed', 'Completed', 'Cancelled'"}, 400
-
         if "order_items" in data:
-            order.order_items = []  # Clear existing items
+            order.order_items = []
             total_price = 0
             for item_data in data["order_items"]:
                 menu_item = MenuItem.query.get(item_data.get("menu_item_id"))
@@ -484,7 +480,7 @@ class OrderResource(Resource):
 
         db.session.commit()
         return jsonify({"message": "Order updated successfully", "updated_order": order.to_dict()})
-
+    
     def delete(self, order_id):
         order = Order.query.get_or_404(order_id)
         db.session.delete(order)
@@ -493,6 +489,23 @@ class OrderResource(Resource):
 
 api.add_resource(OrderResource, '/orders', '/orders/<int:order_id>')
 
+class UpdateOrderStatusResource(Resource):
+    def patch(self, order_id):
+        data= request.json
+        new_status = data.get("status")
+
+        order = Order.query.get(order_id)
+        if not order:
+            return {"error": "Order not found"}, 400
+        
+        order.status = new_status
+        db.session.commit()
+
+        socketio.emit("order_status_update", {"order_id": order_id, "status": new_status}, broadcast=True)
+
+        return {"message": "Order status updated", "status": new_status}, 200
+    
+api.add_resource(UpdateOrderStatusResource, "/orders/<int:order_id>")
 
 class TableBookingResource(Resource):
     def get(self, booking_id=None):
@@ -516,7 +529,6 @@ class TableBookingResource(Resource):
         if not booking:
             return {"error": "Booking not found"}, 404
 
-        # ** Set availability to False when a booking is retrieved **
         if booking.available:  
             booking.available = False
             db.session.commit()
@@ -532,12 +544,25 @@ class TableBookingResource(Resource):
             'availability': booking.available 
         })
 
+    @jwt_required()
+    @cross_origin() 
     def post(self):
+        current_user = get_jwt_identity()
+
+        # ✅ Extract only the customer ID
+        if isinstance(current_user, dict):  
+            customer_id = current_user.get("id")  
+        else:
+            customer_id = current_user  
+
+        if not customer_id:
+            return {"error": "Unauthorized request. No customer ID found."}, 401
+        
         data = request.get_json()
 
         try:
             if 'booking_time' not in data:
-                return jsonify({"error": "Booking time is required"}), 400
+                return {"error": "Booking time is required"}, 400
 
             booking_time = datetime.fromisoformat(data['booking_time'])
 
@@ -545,26 +570,34 @@ class TableBookingResource(Resource):
                 booking_time = booking_time.replace(tzinfo=timezone.utc)
 
             if booking_time <= datetime.now(timezone.utc):
-                return jsonify({"error": "Booking time must be in the future"}), 400
+                return {"error": "Booking time must be in the future"}, 400
             
             data['booking_time'] = booking_time
 
         except ValueError:
-            return jsonify({"error": "Invalid date format. Use YYYY-MM-DDTHH:MM:SS or include timezone"}), 400
+            return {"error": "Invalid date format. Use YYYY-MM-DDTHH:MM:SS or include timezone"}, 400
 
-        booking = TableBooking(**data)
+        booking = TableBooking(
+            customer_id=customer_id,
+            table_number=data['table_number'],
+            booking_time=booking_time,
+            available=False
+        )
         booking.available = False  
         db.session.add(booking)
         db.session.commit()
 
-        return {'message': 'Table booking created successfully', 'booking_id': booking.id}, 201
+        return {
+            'message': 'Table booking created successfully',
+            'booking_id': booking.id
+            }, 201
 
     def delete(self, booking_id):
         booking = TableBooking.query.get_or_404(booking_id)
-        booking.available = True  # Mark table as available again upon deletion
+        booking.available = True
         db.session.delete(booking)
         db.session.commit()
-        return jsonify({'message': 'Table booking deleted successfully'})
+        return {'message': 'Table booking deleted successfully'}
 
 api.add_resource(TableBookingResource, '/bookings', '/bookings/<int:booking_id>')
 
@@ -682,4 +715,7 @@ class SingleOwnerMenuResource(Resource):
         return {"message": "Menu item deleted successfully"}, 200
     
 api.add_resource(OwnerMenuResource,'/ownermenu')
-api.add_resource(SingleOwnerMenuResource,'/ownermenu/<int:menu_id>')  
+api.add_resource(SingleOwnerMenuResource,'/ownermenu/<int:menu_id>')
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
