@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "89ab12e83dad34588e748c2c923bf1017d50244da81631eeb25622197b5e1c29"
+            "sha256": "b21d4d60dc12bae5efdac7e59583186cd5067142aaa465aa0102666fa6368d9a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -54,6 +54,23 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==8.1.8"
+        },
+        "dnspython": {
+            "hashes": [
+                "sha256:5ef3b9680161f6fa89daf8ad451b5f1a33b18ae8a1c6778cdf4b43f08c0a6e50",
+                "sha256:e8f0f9c23a7b7cb99ded64e6c3a6f3e701d78f50c55e002b839dea7225cff7cc"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==2.6.1"
+        },
+        "eventlet": {
+            "hashes": [
+                "sha256:01ba0aa6ee2452690fc02b274a2409598a13b997c7b5af9dc66600fa42015a79",
+                "sha256:9522ca09ad4c1f874c238f06492a7e217ddb13bdeace4475d3b700dd0ba1f6be"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.8'",
+            "version": "==0.39.0"
         },
         "faker": {
             "hashes": [
