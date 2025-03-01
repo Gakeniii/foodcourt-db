@@ -1,8 +1,8 @@
-"""Recreated migrations
+"""Recreated sqlite database
 
-Revision ID: 5a2b32498e71
+Revision ID: 0418b77f33f9
 Revises: 
-Create Date: 2025-02-28 13:32:53.859246
+Create Date: 2025-03-01 14:03:58.607125
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5a2b32498e71'
+revision = '0418b77f33f9'
 down_revision = None
 branch_labels = None
 depends_on = None
