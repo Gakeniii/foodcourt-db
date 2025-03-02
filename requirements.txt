@@ -3,6 +3,8 @@ aniso8601==10.0.0
 bidict==0.23.1
 blinker==1.8.2
 click==8.1.8
+dnspython==2.6.1
+eventlet==0.39.0
 Faker==35.2.2
 Flask==3.0.3
 Flask-Cors==5.0.0
