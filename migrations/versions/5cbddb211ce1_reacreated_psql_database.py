@@ -1,8 +1,8 @@
-"""Recreated sqlite database
+"""Reacreated psql database
 
-Revision ID: 0418b77f33f9
+Revision ID: 5cbddb211ce1
 Revises: 
-Create Date: 2025-03-01 14:03:58.607125
+Create Date: 2025-03-02 07:20:12.377055
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0418b77f33f9'
+revision = '5cbddb211ce1'
 down_revision = None
 branch_labels = None
 depends_on = None
