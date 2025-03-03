@@ -23,8 +23,8 @@ load_dotenv()
 from models import db, User, OwnerMenu, Outlet, MenuItem, Order, TableBooking
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=8) 
@@ -100,10 +100,7 @@ class UserResource(Resource):
                     {'id': order.id, 'status': order.status}
                     for order in user.orders
                 ],
-                'bookings': [
-                    {'id': booking.id, 'table_number': booking.table_number}
-                    for booking in user.bookings
-                ]
+                'bookings': [booking.to_dict() for booking in user.bookings]
             })
 
         return jsonify(user_data)
@@ -564,14 +561,24 @@ class TableBookingResource(Resource):
             if 'booking_time' not in data:
                 return {"error": "Booking time is required"}, 400
 
-            booking_time = datetime.fromisoformat(data['booking_time'])
+            # Assign the booking time string from the data
+            booking_time_str = data['booking_time']
 
+            # Check if the string ends with "Z" (indicating UTC)
+            if booking_time_str.endswith("Z"):
+                # Remove the "Z" and convert to a timezone-aware datetime in UTC
+                booking_time = datetime.fromisoformat(booking_time_str[:-1]).replace(tzinfo=timezone.utc)
+            else:
+                booking_time = datetime.fromisoformat(booking_time_str)
+
+            # Ensure booking_time is timezone-aware; default to UTC if not provided
             if booking_time.tzinfo is None:
                 booking_time = booking_time.replace(tzinfo=timezone.utc)
 
+            # Validate that the booking time is in the future
             if booking_time <= datetime.now(timezone.utc):
                 return {"error": "Booking time must be in the future"}, 400
-            
+
             data['booking_time'] = booking_time
 
         except ValueError:
@@ -586,6 +593,8 @@ class TableBookingResource(Resource):
         booking.available = False  
         db.session.add(booking)
         db.session.commit()
+        print("Received booking request data:", request.get_json())
+
 
         return {
             'message': 'Table booking created successfully',
@@ -622,100 +631,100 @@ api.add_resource(UnbookedTablesResource, '/available', endpoint="available")
 
 
 
-class OwnerMenuResource(Resource):
-    def get(self):
-        menus = MenuItem.query.all()
-        return jsonify([menu.to_dict() for menu in menus])
+# class OwnerMenuResource(Resource):
+#     def get(self):
+#         menus = MenuItem.query.all()
+#         return jsonify([menu.to_dict() for menu in menus])
 
-    def post(self):
-        data = request.get_json()
+#     def post(self):
+#         data = request.get_json()
 
-        if 'outlet_id' not in data or data['outlet_id'] is None:
-            return {"error": "Outlet ID is required"}, 400
-        if 'waiting' not in data or data['waiting'] is None:
-            return {"error": "Waiting time is required"}, 400
+#         if 'outlet_id' not in data or data['outlet_id'] is None:
+#             return {"error": "Outlet ID is required"}, 400
+#         if 'waiting' not in data or data['waiting'] is None:
+#             return {"error": "Waiting time is required"}, 400
 
-        try:
-            data['price'] = int(data['price'])
-            data['waiting'] = int(data['waiting'])  # Ensure waiting is an integer
+#         try:
+#             data['price'] = int(data['price'])
+#             data['waiting'] = int(data['waiting'])  # Ensure waiting is an integer
 
-            outlet = Outlet.query.get(data['outlet_id'])
-            if not outlet:
-                return {"error": "Outlet not found"}, 404
+#             outlet = Outlet.query.get(data['outlet_id'])
+#             if not outlet:
+#                 return {"error": "Outlet not found"}, 404
 
-            menu_item = MenuItem(
-                name=data['name'],
-                image_url=data.get('image_url'),
-                price=data['price'],  
-                cuisine=data['cuisine'],
-                category=data.get('category'),
-                description=data.get('description'),
-                waiting=data['waiting'],  # Ensure it has a valid value
-                outlet_id=data['outlet_id'],
-                owner_menu_id=data.get('owner_menu_id')  # Optional but should be valid if provided
-            )
+#             menu_item = MenuItem(
+#                 name=data['name'],
+#                 image_url=data.get('image_url'),
+#                 price=data['price'],  
+#                 cuisine=data['cuisine'],
+#                 category=data.get('category'),
+#                 description=data.get('description'),
+#                 waiting=data['waiting'],  # Ensure it has a valid value
+#                 outlet_id=data['outlet_id'],
+#                 owner_menu_id=data.get('owner_menu_id')  # Optional but should be valid if provided
+#             )
 
-            db.session.add(menu_item)
-            db.session.commit()
+#             db.session.add(menu_item)
+#             db.session.commit()
 
-            return {"message": "Menu item created successfully", "id": menu_item.id}, 201
+#             return {"message": "Menu item created successfully", "id": menu_item.id}, 201
 
-        except ValueError:
-            return {"error": "Invalid price or waiting format. Must be a whole number."}, 400
-        except Exception as e:
-            db.session.rollback()
-            return {"error": str(e)}, 500
+#         except ValueError:
+#             return {"error": "Invalid price or waiting format. Must be a whole number."}, 400
+#         except Exception as e:
+#             db.session.rollback()
+#             return {"error": str(e)}, 500
 
 
-class SingleOwnerMenuResource(Resource):
-    def get(self, menu_id):
-        menu = MenuItem.query.get(menu_id)
-        if not menu:
-            return {"message": "Menu item not found"}, 404
-        return jsonify(menu.to_dict())
+# class SingleOwnerMenuResource(Resource):
+#     def get(self, menu_id):
+#         menu = MenuItem.query.get(menu_id)
+#         if not menu:
+#             return {"message": "Menu item not found"}, 404
+#         return jsonify(menu.to_dict())
 
-    def patch(self, menu_id):
-        menu = MenuItem.query.get(menu_id)
-        if not menu:
-            return {"message": "Menu item not found"}, 404
+#     def patch(self, menu_id):
+#         menu = MenuItem.query.get(menu_id)
+#         if not menu:
+#             return {"message": "Menu item not found"}, 404
 
-        data = request.get_json()
+#         data = request.get_json()
 
-        menu.name = data.get('name', menu.name)
-        menu.price = data.get('price', menu.price)
-        menu.image_url = data.get('image_url', menu.image_url)
-        menu.cuisine = data.get('cuisine', menu.cuisine)
-        menu.category = data.get('category', menu.category)
-        menu.waiting = data.get('waiting', menu.waiting)
+#         menu.name = data.get('name', menu.name)
+#         menu.price = data.get('price', menu.price)
+#         menu.image_url = data.get('image_url', menu.image_url)
+#         menu.cuisine = data.get('cuisine', menu.cuisine)
+#         menu.category = data.get('category', menu.category)
+#         menu.waiting = data.get('waiting', menu.waiting)
 
-        db.session.commit()
+#         db.session.commit()
 
-        menu_item = MenuItem.query.filter_by(owner_menu_id=menu.id).first()
-        if menu_item:
-            menu_item.name = menu.name
-            menu_item.price = menu.price
-            menu_item.image_url = menu.image_url
-            menu_item.cuisine = menu.cuisine
-            menu_item.category = menu.category
-            db.session.commit()
+#         menu_item = MenuItem.query.filter_by(owner_menu_id=menu.id).first()
+#         if menu_item:
+#             menu_item.name = menu.name
+#             menu_item.price = menu.price
+#             menu_item.image_url = menu.image_url
+#             menu_item.cuisine = menu.cuisine
+#             menu_item.category = menu.category
+#             db.session.commit()
 
-        return {"message": "Menu item updated successfully", "menu": menu.to_dict()}
+#         return {"message": "Menu item updated successfully", "menu": menu.to_dict()}
 
-    def delete(self, menu_id):
-        menu = MenuItem.query.get(menu_id)
-        if not menu:
-            return {"message": "Menu item not found"}, 404
+#     def delete(self, menu_id):
+#         menu = MenuItem.query.get(menu_id)
+#         if not menu:
+#             return {"message": "Menu item not found"}, 404
 
-        db.session.delete(menu)
-        db.session.commit()
+#         db.session.delete(menu)
+#         db.session.commit()
 
-        MenuItem.query.filter_by(owner_menu_id=menu_id).delete()
-        db.session.commit()
+#         MenuItem.query.filter_by(owner_menu_id=menu_id).delete()
+#         db.session.commit()
 
-        return {"message": "Menu item deleted successfully"}, 200
+#         return {"message": "Menu item deleted successfully"}, 200
     
-api.add_resource(OwnerMenuResource,'/ownermenu')
-api.add_resource(SingleOwnerMenuResource,'/ownermenu/<int:menu_id>')
+# api.add_resource(OwnerMenuResource,'/ownermenu')
+# api.add_resource(SingleOwnerMenuResource,'/ownermenu/<int:menu_id>')
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

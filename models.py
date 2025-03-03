@@ -234,3 +234,12 @@ class TableBooking(db.Model):
             raise ValueError("Booking time must be in the future")
  
         return booking_time 
+    
+    def to_dict(self):
+        return {
+            "booking_id": self.id,
+            "table_number": self.table_number,
+            # Use isoformat() to convert the datetime to an ISO 8601 string.
+            "booking_time": self.booking_time.isoformat(),
+            "available": self.available,
+        }
