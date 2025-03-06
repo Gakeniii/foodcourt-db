@@ -1,17 +1,17 @@
 ## FOODIE.EATS backend phase5-Final Project
-This repository has the backend code for the phase5 final project. 
+This repository has the backend code for the phase 5 final project. 
 ## Backend developers
 [George Yegon] (https://github.com/georgeyegon)
 
 
 [Sifa Gakeni] (https://github.com/Gakeniii)
 ## Postgresql
-For the database, our group used postgres which was a requirement to host our data for the app.<br>
+For the database, our group used Postgres which was a requirement to host our data for the app.<br>
 We also used Flask for the tables and relationships as well.
 
 
-Just incase the app stops fetching, know it is because our free subscription for postgres on render comes to an end on the 19th on MARCH.<br>
-If that happens feel free to run the app localy on your machine, by cloning the repository and installing the virtual environment
+Just in case the app stops fetching, know it is because our free subscription for Postgres on Render comes to an end on the 19th of MARCH.<br>
+If that happens feel free to run the app locally on your machine, by cloning the repository and installing the virtual environment
 
 `pipenv install; pipenv shell`
 
@@ -31,13 +31,19 @@ change the database from the database URI to sqlite://db
 and start the server
 
 `flask run`
+## Endpoints
+  - User endpoints use Postman to insert the Authorization and access keys - /users /users/:id
+  - Outlet endpoints - /outlets /outlet/:id
+  - Menu endpoints - /menu_items /menu_items/:id
+  - Reservation endpoints - /bookings /bookings/:id
+  - Orders endpoints - /orders /orders/:id
 
 ## Functionality 
 This code enables the user to <br>
-- Sign in login and log out
+- Sign in log in and log out
 - View all outlets
 - Make an order that will persist in the database
-- View cart and check with the order they made
+- View the cart and check with the order they made
 - Reserve a table
 - With socket.io the owner can make updates on the client's orders and the client's order is automatically updated with a notification
 - the owner can see the orders and reservations fetched from the database
