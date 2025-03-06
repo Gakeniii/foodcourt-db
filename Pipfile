@@ -14,8 +14,14 @@ flask-restful = "*"
 python-dotenv = "*"
 flask-cors = "*"
 marshmallow-sqlalchemy = "*"
-flask-socketio = "*"
 faker = "*"
+flask-jwt-extended = "*"
+flask-socketio = "*"
+
+eventlet = "*"
+
+faker = "*"
+
 
 [dev-packages]
 

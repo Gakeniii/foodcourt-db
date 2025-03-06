@@ -48,6 +48,7 @@ class OwnerMenu(db.Model):
     image_url = db.Column(db.String, nullable=True)
     cuisine = db.Column(db.String(50), nullable=False)
     category = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String, nullable=True)
     waiting = db.Column(db.Integer, nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
@@ -65,7 +66,8 @@ class OwnerMenu(db.Model):
             'price': self.price,
             'image_url': self.image_url,
             'cuisine': self.cuisine,
-            'category': self.category
+            'category': self.category,
+            'description': self.description
         }
 
 
@@ -103,7 +105,6 @@ class MenuItem(db.Model):
 
         outlet = db.relationship('Outlet', back_populates='menu_items')
         owner_menu = relationship('OwnerMenu', back_populates='menu_items')
-#Change.
 
         @validates('price')
         def validate_price(self, key, price):
@@ -121,23 +122,32 @@ class MenuItem(db.Model):
                 'category': self.category,
                 'description': self.description,
                 'waiting': self.waiting,
-                'outlet_id': self.outlet_id,
+
                 'owner_menu_id': self.owner_menu_id
             }
 
-#change
 class Order(db.Model):
     __tablename__ = 'orders'
 
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     outlet_id = db.Column(db.Integer, db.ForeignKey('outlet.id'), nullable=False)
-    table_booking_id = db.Column(db.Integer, db.ForeignKey('table_bookings.id'), nullable=True)  
-    table_number = db.Column(db.Integer, nullable=True) 
+    table_booking_id = db.Column(db.Integer, db.ForeignKey('table_bookings.id'), nullable=True)
+    table_number = db.Column(db.Integer, nullable=True)
     status = db.Column(db.String(20), default="Pending")
     total_price = db.Column(db.Float, default=0.0)
-    created_at = db.Column(db.DateTime, default=func.now())  
-    order_items = db.Column(db.JSON, nullable=False, default=[])  # Store items as JSON
+    created_at = db.Column(db.DateTime, default=func.now())
+    order_items = db.Column(db.JSON, nullable=False, default=[])
+
+    outlet = db.relationship('Outlet', back_populates='orders')
+    customer = db.relationship('User', back_populates='orders')
+    table_booking = db.relationship('TableBooking', back_populates='orders', overlaps="orders")
+
+    @validates('table_number')
+    def validate_table_number(self, key, table_number):
+        if table_number and (table_number < 1 or table_number > 20):
+            raise ValueError("Invalid table number. Must be between 1 and 20.")
+        return table_number
 
     outlet = db.relationship('Outlet', back_populates='orders')
     customer = db.relationship('User', back_populates='orders')
@@ -159,15 +169,19 @@ class Order(db.Model):
     def to_dict(self):
         from models import MenuItem  # Avoid circular import issues
 
+
+    def to_dict(self):
+        from models import MenuItem
+
         return {
             'id': self.id,
             'customer_id': self.customer_id,
             'outlet_id': self.outlet_id,
-            'outlet_name': self.outlet.name if self.outlet else None,  # Fetch outlet name
+            'outlet_name': self.outlet.name if self.outlet else None,
             'table_booking_id': self.table_booking_id,
             'table_number': self.table_number,
             'status': self.status,
-            'total_price': self.total_price,
+            'total_price': round(self.total_price, 2),
             'created_at': self.created_at.isoformat(),
             'order_items': [
                 {
@@ -177,19 +191,20 @@ class Order(db.Model):
                     'menu_item_image': db.session.get(MenuItem, item['menu_item_id']).image_url if db.session.get(MenuItem, item['menu_item_id']) else None,
                     'quantity': item['quantity'],
                     'payment_method': item['payment_method'],
-                    'total_price': item['total_price'],
+                    'total_price': round(item['quantity'] * db.session.get(MenuItem, item['menu_item_id']).price, 2) if db.session.get(MenuItem, item['menu_item_id']) else None,
                 }
                 for item in self.order_items
             ]
         }
 
-
     def add_order_item(self, menu_item_id, quantity, payment_method):
+        from models import MenuItem
+
         menu_item = db.session.get(MenuItem, menu_item_id)
         if not menu_item:
             raise ValueError("Menu item not found")
-        
-        item_total = quantity * menu_item.price
+
+        item_total = round(quantity * menu_item.price, 2)
         order_item = {
             'menu_item_id': menu_item_id,
             'menu_item_name': menu_item.name,
@@ -198,10 +213,14 @@ class Order(db.Model):
             'payment_method': payment_method,
             'total_price': item_total
         }
-        
-        self.order_items.append(order_item)
-        self.total_price += item_total
 
+        self.order_items.append(order_item)
+        self.total_price = sum(item['total_price'] for item in self.order_items)
+
+@event.listens_for(Order, 'before_insert')
+@event.listens_for(Order, 'before_update')
+def set_total_price(mapper, connection, target):
+    target.total_price = sum(item['total_price'] for item in target.order_items)
 
 
 class TableBooking(db.Model):
@@ -229,3 +248,13 @@ class TableBooking(db.Model):
             raise ValueError("Booking time must be in the future")
  
         return booking_time 
+
+    
+    def to_dict(self):
+        return {
+            "booking_id": self.id,
+            "table_number": self.table_number,
+            # Use isoformat() to convert the datetime to an ISO 8601 string.
+            "booking_time": self.booking_time.isoformat(),
+            "available": self.available,
+        }
