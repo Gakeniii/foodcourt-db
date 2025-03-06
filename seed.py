@@ -454,32 +454,7 @@ with app.app_context():
         print(f"✅ {len(menu_items)} menu items successfully inserted!")
     else:
         print("❌ No menu items were added! Check outlet_data.")
-
-    # owner_menus = []
-    # for owner in owners:
-    #     outlet = random.choice(outlets)
-    #     outlet_menu_items = [item for item in menu_items if item.outlet_id == outlet.id]
         
-    #     for menu_item in outlet_menu_items:
-    #         description = menu_item.description if menu_item.description else "No description available"
-
-    #         owner_menu = OwnerMenu(
-    #             owner_id=owner.id,
-    #             outlet_id=outlet.id,
-    #             name=menu_item.name,
-    #             price=menu_item.price,
-    #             image_url=menu_item.image_url,
-    #             cuisine=menu_item.cuisine,
-    #             category=menu_item.category,
-    #             description=description,
-    #             waiting=menu_item.waiting
-    #         )
-    #         owner_menus.append(owner_menu)
-
-    # db.session.add_all(owner_menus)
-    # db.session.commit()
-    # print("Database seeded successfully with OwnerMenu data!")
-
     orders = []
     order_count = 0
     # MAX_ORDERS = 20  # Set max orders limit
