@@ -41,7 +41,7 @@ api = Api(app)
 jwt = JWTManager(app)
 
 
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "https://foodcourt-frontend.vercel.app"}}, supports_credentials=True)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 @socketio.on("connect")
@@ -345,7 +345,7 @@ class MenuItemResource(Resource):
             'outlet': {'id': menu_item.outlet.id, 'name': menu_item.outlet.name} if menu_item.outlet else None
         }
 
-    @cross_origin(origins="https://foodcourt-frontend.vercel.app/", supports_credentials=True)
+    @cross_origin(origins="https://foodcourt-frontend.vercel.app", supports_credentials=True, methods=['GET', 'POST', 'PATCH', 'OPTIONS'])
     def post(self):
         data = request.get_json()
 
