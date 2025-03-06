@@ -6,11 +6,11 @@ This repository has the backend code for the phase5 final project.
 
 [Sifa Gakeni] (https://github.com/Gakeniii)
 ## Postgresql
-For the database, our group used postgres which was a requirement to host our data for the app.
+For the database, our group used postgres which was a requirement to host our data for the app.<br>
+We also used Flask for the tables and relationships as well.
 
 
-Just incase the app stops fetching, know it is because our free subscription for postgres on render comes to an end on the 19th on MARCH.
-
+Just incase the app stops fetching, know it is because our free subscription for postgres on render comes to an end on the 19th on MARCH.<br>
 If that happens feel free to run the app localy on your machine, by cloning the repository and installing the virtual environment
 
 `pipenv install; pipenv shell`
