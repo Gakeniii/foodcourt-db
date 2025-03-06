@@ -122,6 +122,7 @@ class MenuItem(db.Model):
                 'category': self.category,
                 'description': self.description,
                 'waiting': self.waiting,
+
                 'owner_menu_id': self.owner_menu_id
             }
 
@@ -148,12 +149,26 @@ class Order(db.Model):
             raise ValueError("Invalid table number. Must be between 1 and 20.")
         return table_number
 
+    outlet = db.relationship('Outlet', back_populates='orders')
+    customer = db.relationship('User', back_populates='orders')
+    table_booking = db.relationship('TableBooking', back_populates='orders', overlaps="orders")
+    
+    @validates('table_number')
+    def validate_table_number(self, key, table_number):
+        if table_number and (table_number < 1 or table_number > 20):  
+            raise ValueError("Invalid table number. Must be between 1 and 20.")
+        return table_number
+    
     @validates('status')
     def validate_status(self, key, status):
         valid_statuses = ["Pending", "Confirmed", "Completed", "Cancelled"]
         if status not in valid_statuses:
             raise ValueError("Invalid status")
         return status
+    
+    def to_dict(self):
+        from models import MenuItem  # Avoid circular import issues
+
 
     def to_dict(self):
         from models import MenuItem
@@ -190,7 +205,6 @@ class Order(db.Model):
             raise ValueError("Menu item not found")
 
         item_total = round(quantity * menu_item.price, 2)
-
         order_item = {
             'menu_item_id': menu_item_id,
             'menu_item_name': menu_item.name,
@@ -234,6 +248,7 @@ class TableBooking(db.Model):
             raise ValueError("Booking time must be in the future")
  
         return booking_time 
+
     
     def to_dict(self):
         return {

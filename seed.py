@@ -13,40 +13,6 @@ categories = ['Starter', 'Main Course', 'Dessert', 'Kids Menu', 'Snacks', 'Drink
 cuisines = ['Italian', 'Japanese', 'Indian', 'American', 'French', 'Mexican', 'Chinese', 'Swahili', 'Malasyian','Turkish', 'Congolese']
 
 outlet_data = [
-    # {"name": "Sapori d'Italia",
-    #  "image_url": "https://saporidiitalia.co.uk/wp-content/uploads/2024/01/updated-logo-_-tag-line_Mesa-de-trabajo-1-1-e1704668897200.png",
-    #  "menus":{
-    #      "Starter": [
-    #          {"name": "Bruschetta", "price": 650, "image_url": "https://www.walderwellness.com/wp-content/uploads/2024/05/Burrata-Bruschetta-Walder-Wellness-5-1024x1536.jpg", "cuisine": "Italian", "description": "Grilled bread topped with garlic, olive oil and salt, served with toppings of tomatoes, vegetables, cured meat and cheese", "waiting": 10},
-    #          {"name": "Caprese Salad", "price": 600, "image_url": "https://www.thespruceeats.com/thmb/2pjgFA7_nbZtlXr68BECvf6fO48=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/caprese-salad-tomato-salad-2217097-hero-03-75a0b89b30aa4a52b10fe4fdd9abfeb5.jpg", "cuisine": "Italian", "description": "Perfectly ripe tomatoes combines with stretchy mozzarella and fresh basil leaves", "waiting": 10},
-    #          {"name": "Focaccia", "price": 450, "image_url": "https://www.feastingathome.com/wp-content/uploads/2024/10/focaccia-5-1.jpg", "cuisine": "Italian", "description": "Springy Italian bread dotted with fresh rosemary sprigs, sprinkled with flaky sea salt", "waiting": 6}
-    #      ],
-    #      "Main Course": [
-    #          {"name": "Margharita Pizza", "price": 1200, "image_url": "https://www.cookingclassy.com/wp-content/uploads/2017/08/margherita-pizza-9.jpg", "cuisine": "Italian", "description": "Classic Margherita pizza with fresh tomatoes, mozzarella, and basil.", "waiting": 15},
-    #          {"name": "Chicken Scarpariello", "price": 2500, "image_url": "https://www.foodandwine.com/thmb/P5Vs7pUOnUKWuuX_1ro191x4BRc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Chicken-Scarpariello-FT-RECIPE1023-c6c5d4c72b1f4c66bd8276106447c988.jpg", "cuisine": "Italian", "description": "Sauteed chicken in tangy lemon glaze with sweet pickeled bell peppers", "waiting": 20},
-    #          {"name": "Italian Wedding Risotto", "price": 1850, "image_url": "https://www.foodandwine.com/thmb/a_r5T2LVyBlOe3s73zq1ZoHA6bc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/FAW-recipes-italian-wedding-risotto-hero-01-f9c6681cf49f4b958882d2fb84acc61d.jpg", "cuisine": "Italian", "description": "Italian weeding soup, served with garlicky meatball and spinach risotto, drizzled with olive oil and grated parmesean and Parlsey", "waiting": 25},
-    #          {"name": "Pasta Cabonara", "price": 1900, "image_url": "https://www.sweetteaandthyme.com/wp-content/uploads/2023/11/cheesecake-factory-carbonara-overhead-close.jpg", "cuisine": "Italian", "description": "Traditional Roman pasta made with spaghetti, eggs, pancetta, Pecorino cheese and black pepper", "waiting": 20},
-    #          {"name": "Saltimbocca alla Romana", "price": 2500, "image_url": "https://images.immediate.co.uk/production/volatile/sites/57/2024/06/100620241718011871.jpeg", "cuisine": "Italian", "description": "Thin slices of veal wrapped with prosciutto and sage, pan-fried in butter and fine wine, with bold aromatic flavours", "waiting": 20}  
-    #      ],
-    #      "Dessert": [
-    #          {"name": "Tiramisu", "price": 500, "image_url": "https://butternutbakeryblog.com/wp-content/uploads/2024/05/classic-tiramisu.jpg", "cuisine": "Italian", "description": "layers of espresso soaked ladyfingers, mascarpone cheese,cocoa powder and a hint of liquer. It has a creamy rich texture and a balance of coffee and sweetness", "waiting": 7},
-    #          {"name": "Cannoli", "price": 650, "image_url": "https://hips.hearstapps.com/hmg-prod/images/cannoli-lead-66a82050a2a8e.jpg?resize=640:*", "cuisine": "Italian", "description": "Fried tube like shells filled with a sweet ricotta-based cream", "waiting": 20},
-    #      ],
-    #      "Kids Menu": [
-    #          {"name": "Mini Pizza", "price": 800, "image_url": "https://www.littlesugarsnaps.com/wp-content/uploads/2021/07/Pizzette-featured-Image-.jpg", "cuisine": "Italian", "waiting": 10},
-    #          {"name": "Cheese Ricotta", "price": 2500, "image_url": "https://media-cldnry.s-nbcnews.com/image/upload/t_social_share_1200x630_center,f_auto,q_auto:best/newscms/2023_37/2030421/honeymoon-cheese-and-herb-ravioli-mc-2x1-230911.jpg", "cuisine": "Italian", "description": "Sauteed chicken in tangy lemoon glaze with sweet pickeled bell peppers", "waiting": 20},
-    #      ],
-    #      "Snacks": [
-    #          {"name": "Arancini", "price": 400, "image_url": "https://www.andy-cooks.com/cdn/shop/articles/20240912032016-andy-20cooks-20-20arancini-20ragu-20e-20piselli_da7d7d2f-d828-4ca8-80cd-c11b12807bc4.jpg?v=1726642856", "cuisine": "Italian", "description": "Golden fried rice balls stiffed with mozzarella", "waiting": 5},
-    #          {"name": "Suppli", "price": 500, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb-hSd6-V1C_bXbqe0_p3exdrx7jX3zbOBCQ&s", "cuisine": "Italian", "description": "Fried croquettes filled with ham, mozzarella and tomatoes", "waiting": 6},
-    #      ],
-    #      "Drinks": [
-    #          {"name": "Espresso", "price": 300, "image_url": "https://blogstudio.s3.theshoppad.net/coffeeheroau/ec178d83e5f597b162cda1e60cb64194.jpg", "cuisine": "Italian", "description": "Concentrated coffee", "waiting": 3},
-    #          {"name": "Aperol Spitz", "price": 1000, "image_url": "https://agratefulmeal.com/wp-content/uploads/2023/02/aperol-spritz-cocktail-featured.jpg", "cuisine": "Italian", "description": "Cocktail made with, Aperol,prsecco and a splash of soda water", "waiting": 20},
-    #          {"name": "Limoncello", "price": 1100, "image_url": "https://www.threeolivesbranch.com/wp-content/uploads/2020/12/amalfi-martini-limoncello-gin-cocktail-threeolivesbranch-5-768x1024.jpg", "cuisine": "Italian", "description": "Sweet and tangy lemon liquer", "waiting": 20},
-    #      ]
-    #  }
-    # },
 
     {"name": "Kai Sushi Place", "image_url": "https://labellakosher.com/wp-content/uploads/2024/09/Sushi-Platters.jpg",
      "menus": {
@@ -82,6 +48,7 @@ outlet_data = [
         "menus": {
          "Starter": [
             #  {"name": "Samosa", "price": 250, "image_url": "https://www.ohmyveg.co.uk/wp-content/uploads/2021/10/Samosa-1-e1722866243103-720x720.jpg", "cuisine": "Indian", "description": "Deep fried pastry with mince meat stuffings", "waiting": 5},
+
              {"name": "Pan Puri", "price": 400, "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Pani_Puri1.JPG", "cuisine": "Indian", "description": "Deep fried balls with meat filling", "waiting": 9}
          ],
          "Main Course": [
@@ -91,10 +58,12 @@ outlet_data = [
          ],
          "Desert": [
             #   {"name": "Jalebi", "price": 400, "image_url": "https://i0.wp.com/binjalsvegkitchen.com/wp-content/uploads/2023/10/Instant-Jalebi-H3.jpg?resize=600%2C904&ssl=1", "cuisine": "Indian", "description": "Deep fried, crisp sweets soaked in saffron infused sugar", "waiting": 5},
+
               {"name": "Kulfi", "price": 400, "image_url": "https://thebigmansworld.com/wp-content/uploads/2022/07/kulfi-ice-cream-recipe.jpg", "cuisine": "Indian", "description": "Ice cream with cardamon, saffron and pistachios", "waiting": 9}
          ],
          "Kids Menu": [
              {"name": "Butter Chicken", "price": 1000, "image_url": "https://foodess.com/wp-content/uploads/2022/10/Foodess-Best-Butter-Chicken-1-2.jpg", "cuisine": "Indian", "description": "Grilled chicken made with yoghurt and spices served with Naan", "waiting": 8},
+
             #  {"name": "Pan Puri", "price": 400, "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Pani_Puri1.JPG", "cuisine": "Indian", "description": "Deep fried balls with meat filling", "waiting": 9}
          ],
          "Snacks": [
@@ -103,6 +72,7 @@ outlet_data = [
          ],
          "Drinks": [
              {"name": "Masala chai", "price": 450, "image_url": "https://cdn.shopify.com/s/files/1/0528/5173/6769/files/1080-X-683-pxl-A12.jpg?v=1654750025", "cuisine": "Indian", "description": "Black tea spiced with cardamon, cinnamon, black pepper and cloves", "waiting": 5},
+
             #  {"name": "Laasi", "price": 400, "image_url": "https://assets.bonappetit.com/photos/6046f566051c297ccfc14827/1:1/w_2560%2Cc_limit/Holi-Mango-Lassi.jpg", "cuisine": "Indian", "description": "Thick Yoghurt flavoured with fruits", "waiting": 5}
          ]
         }
@@ -112,10 +82,12 @@ outlet_data = [
         "menus": {
          "Starter": [
             #  {"name": "Shrimp cocktails", "price": 1450, "image_url": "https://www.foodandwine.com/thmb/eJbvl3xF29aslGsseo5ekZrmL0s=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Dirty-Martini-Shrimp-Cocktail-FT-Recipe0624-17d9fd13705a402da5d673053929ba6a.jpg", "cuisine": "American", "description": "Chilled shrimp served with cocktail horseradish sauce", "waiting": 10},
+
              {"name": "Stuffed Mushrooms", "price": 1000, "image_url": "https://natashaskitchen.com/wp-content/uploads/2023/12/stuffed-mushrooms-sq.jpg", "cuisine": "American", "description": "Mushrooms filled cheese, garlic, bradcrumbs and herbs", "waiting": 10}
          ],
          "Main Course": [
              {"name": "Ribeye Steak", "price": 1200, "image_url": "https://tatyanaseverydayfood.com/wp-content/uploads/2019/06/Ribeye-Steak-Dinner-4-of-4-768x1024.jpg", "cuisine": "American","description": "Beef griled to perfection served with mashed potatoes or vegetables", "waiting": 25},
+
             #  {"name": "Porterhouse Steak", "price": 1000, "image_url": "https://d21klxpge3tttg.cloudfront.net/wp-content/uploads/2021/03/Reverse-seared-porterhouse-poblano-crema.jpg", "cuisine": "American", "description": "Large cut of tenderloin and strip steak", "waiting": 20},
             #  {"name": "T-Bone steak", "price": 1100, "image_url": "https://richmeats.capetown/wp-content/uploads/2017/03/T-Bone-1.jpg", "cuisine": "American", "description": "Tenderloin grilled to perfetion", "waiting": 25}
          ],
@@ -142,6 +114,7 @@ outlet_data = [
         "menus": {
          "Starter": [
              {"name": "Escargot de Bourgogne", "price": 2500, "image_url": "https://images.sbs.com.au/dims4/default/628e6ba/2147483647/strip/true/crop/1200x675+0+63/resize/1280x720!/quality/90/?url=http%3A%2F%2Fsbs-au-brightspot.s3.amazonaws.com%2Fdrupal%2Ffood%2Fpublic%2Fimg_7379-snails.jpg", "cuisine": "French", "description": "Snails cooked in butter, parley and wine", "waiting": 10},
+
             #  {"name": "French Onion soup", "price": 600, "image_url": "https://www.gimmesomeoven.com/wp-content/uploads/2015/01/French-Onion-Soup-Recipe-1-1.jpg", "cuisine": "French", "description": "Savoory soup with caramelized onions", "waiting": 10}
          ],
          "Main Course": [
@@ -163,6 +136,7 @@ outlet_data = [
          ],
          "Drinks": [
             #  {"name": "Wine", "price": 950, "image_url": "https://winery.ph/cdn/shop/articles/WPH_Blog_Hero_Graphics_1_1500x901.jpg?v=1620291667", "cuisine": "French", "description": "Red White or Mulled", "waiting": 5},
+
              {"name": "Kir Royale", "price": 900, "image_url": "https://www.lemontreedwelling.com/wp-content/uploads/2023/05/kir-royale-featured.jpg", "cuisine": "French", "description": "Cocktail made with creme de cassis and champagne effect", "waiting": 5}
          ]
         }
@@ -172,15 +146,18 @@ outlet_data = [
         "menus": {
          "Starter": [
              {"name": "Guacamole", "price": 250, "image_url": "https://californiaavocado.com/wp-content/uploads/2020/07/Guacamole-Autentico-1.jpeg", "cuisine": "Mexican", "description": "Creamy dip made fromavocadoes, tomatoes and onions", "waiting": 10},
+
             #  {"name": "Queso fundido", "price": 500, "image_url": "https://www.budgetbytes.com/wp-content/uploads/2023/01/Queso-Fundido-V1.jpg", "cuisine": "Mexican", "description": "Melted cheese served with chorio or mushrooms", "waiting": 10}
          ],
          "Main Course": [
             #  {"name": "Enchiladas", "price": 1200, "image_url": "https://images.immediate.co.uk/production/volatile/sites/30/2024/02/BeefEnchiladas-68c9381.jpg", "cuisine": "Mexican","description": "Corn tortillas filled wit meat, cheese or beans", "waiting": 25},
             #  {"name": "Burritos", "price": 1500, "image_url": "https://images.themodernproper.com/production/posts/BreakfastBurritos_13.jpg?w=1200&q=82&auto=format&fit=crop&dm=1712004278&s=74d57595cd6412657b898c59bb8f17dd", "cuisine": "Mexican", "description": "Large tortilla wrapped stuffed.", "waiting": 20},
+
              {"name": "Chiles Rellenos", "price": 1850, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU5gfAV3U88Z34QnEV_yJYKNjJfbPLm2fApw&s", "cuisine": "Mexican", "description": "Roasted poblano peppers stuffed with cheese or meat", "waiting": 25}
          ],
          "Desert": [
               {"name": "Churros", "price": 700, "image_url": "https://hips.hearstapps.com/hmg-prod/images/churros-index-661d4692d05e4.jpg?crop=0.8888888888888888xw:1xh;center,top&resize=1200:*", "cuisine": "Mexican", "description": "Freid dough pastries coated with cinnamon sugar", "waiting": 5},
+
             #   {"name": "Tres Leche Cake", "price": 800, "image_url": "https://www.rainbownourishments.com/wp-content/uploads/2022/04/vegan-tres-leches-cake-1.jpg", "cuisine": "Mexican", "description": "A moist cake soaked in mixture of milk", "waiting": 9}
          ],
          "Kids Menu": [
@@ -193,156 +170,12 @@ outlet_data = [
          ],
          "Drinks": [
             #  {"name": "Horchata", "price": 550, "image_url": "https://www.foodandwine.com/thmb/fa4Ny43jN22ouDZKSNAMN4Dqu_Q=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Horchata-Explainer-FT-BLOG0923-7b252e8f459f43c29655339daeb62a82.jpg", "cuisine": "Mexican", "description": "Sweet, creamy drink made from rice, cinnamon and vanilla, served cold", "waiting": 5},
+
              {"name": "Aqua Fresca", "price": 900, "image_url": "https://www.shape.com/thmb/7MZzTVFIq-WQJm3rsh3d_Rdi9pc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/agua-fresca-shutterstock_2023599671-2000-aadf4aef373740dfa2bbaeb3cd88278c.jpg", "cuisine": "Mexican", "description": "Made from fruits mixed with water, refreshing", "waiting": 5}
          ]
         }
     },
 
-    {"name": "Chun Li's Chinese Delicacies", "image_url": "https://images.chinahighlights.com/allpicture/2021/12/71879439c9ef4d0da835efb6_cut_750x400_39.jpg",
-     "menus": {
-         "Starter": [
-            #  {"name": "Spring rolls", "price": 400, "image_url": "https://saltedmint.com/wp-content/uploads/2024/01/Vegetable-Spring-Rolls-4-500x375.jpg", "cuisine": "Chinese", "decsription":"Crispy rolls with filling", "waiting": 5},
-             {"name": "Dumplings", "price": 500, "image_url": "https://myriadrecipes.com/wp-content/uploads/2023/07/IMG_8510-scaled.jpg", "cuisine": "Chinese", "decsription":"Pork fillings", "waiting": 4}
-         ],
-         "Main Course": [
-            #  {"name": "Chow mein", "price": 1900, "image_url": "https://thebigmansworld.com/wp-content/uploads/2023/02/chicken-chow-mein-recipe.jpg", "cuisine": "Chinese","description": "Stir fried noodles with vegetables and meat of choice", "waiting": 20},
-             {"name": "Sweet and Sour Pork", "price": 2100, "image_url": "https://iankewks.com/wp-content/uploads/2023/10/IMG_0299.jpg", "cuisine": "Chinese", "decsription":"Crsipy pork buttered in a sweet and sour sauce", "waiting": 10},
-            #  {"name": "Mapo Tofu", "price": 1250, "image_url": "https://omnivorescookbook.com/wp-content/uploads/2022/05/220510_Mapo-Tofu_550.jpg", "cuisine": "Chinese", "decsription":"Soft tofu and minced pork in a spicy flavourful sauce", "waiting": 12}
-         ],
-         "Dessert": [
-            #   {"name": "Fortune cookies", "price": 100, "image_url": "https://lilluna.com/wp-content/uploads/2021/09/fortune-cookies-resize-6.jpg", "cuisine": "Chinese", "decsription":"Cookies with a small fortune message inside", "waiting": 5},
-              {"name": "Chinese Almond cookies", "price": 350, "image_url": "https://simply2moms.com/wp-content/uploads/2024/02/Chinese-Almond-Cookies-720x720.jpg", "cuisine": "Chinese", "decsription":"Cookies with almond filling", "waiting": 5}
-         ],
-         "Kids Menu": [
-            #  {"name": "Steamed Buns", "price": 700, "image_url": "https://omnivorescookbook.com/wp-content/uploads/2021/07/210714_Steamed-Pork-Buns-with-Chive_550.jpg", "cuisine": "Chinese", "decsription":"foodie eats", "waiting": 8},
-             {"name": "Beef", "price": 450, "image_url": "https://www.beyondkimchee.com/wp-content/uploads/2022/09/Crispy-Beef-thumbnail.jpg", "cuisine": "Chinese", "decsription":"foodie eats", "waiting": 5}
-         ],
-         "Snacks": [
-            #  {"name": "Egg fried rice", "price": 800, "image_url": "https://cjeatsrecipes.com/wp-content/uploads/2024/10/Egg-Fried-Rice-on-a-plate-1200x1800.jpg", "cuisine": "Chinese", "decsription":"Rice stir fried in eggs, vegs and light seasoning", "waiting": 17},
-             {"name": "Chinese Broccoli in Oyster Sauce", "price": 750, "image_url": "https://apinchofsaffron.nl/wp-content/uploads/2024/05/22A1723.jpg", "cuisine": "Chinese", "decsription":"Broccoli cooked in oyster sauce", "waiting": 15}
-         ],
-         "Drinks": [
-            #  {"name": "Apple Juice", "price": 300, "image_url": "https://images.prismic.io/goodnature/ZDIxNjE5ZTAtYjlhMi00ZTlmLTkxNTktODZiODA1YzkxNmFh_apple-juice-hero.jpg?auto=compress,format&rect=0,0,1200,628&w=1200&h=628", "cuisine": "Chinese", "decsription":"Freshly juiced apple juice", "waiting": 5},
-             {"name": "Milk tea", "price": 200, "image_url": "https://teacultureoftheworld.com/cdn/shop/articles/taiwan-milk-tea-with-boba-bubble-pearl-on-plastic-2024-02-05-02-27-11-utc_2191x.jpg?v=1714023533", "cuisine": "Chinese", "decsription":"Traditional tea with boba pearls", "waiting": 10}
-         ]
-     }
-    },
-
-    #     {"name": "Chez Flore", "image_url": "https://blog.catchyz.com/wp-content/uploads/2021/03/congo-food.jpg",
-    #  "menus": {
-    #      "Starter": [
-    #         #  {"name": "Makemba", "price": 500, "image_url": "https://mayvegrill.com/wp-content/uploads/2020/10/Makemba-820x450.jpg", "cuisine": "Congolese", "decsription":"Sliced plantains fried until golden and crispy", "waiting": 5},
-    #          {"name": "Chkwangue", "price": 550, "image_url": "https://www.osina.ch/photo/data/chikwangue-kwanga-500-g-gemuese-gefroren-gemuese-fruechte-398-32964-4.jpg?ts=1724083354", "cuisine": "Congolese", "decsription":"Fermented Cassava dough, wrapped in banana leaves", "waiting": 4}
-    #      ],
-    #      "Main Course": [
-    #         #  {"name": "Moambe Chicken", "price": 3200, "image_url": "https://explorers.kitchen/wp-content/uploads/2016/01/Congo-Moambe-Chicken-13.jpg", "cuisine": "Congolese", "category": "Main Course","description": " ", "waiting": 20},
-    #          {"name": "Fufu and Sese", "price": 1100, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyhaZwiihLG4n5HAtw-PhkucNfvBKVl8yrIA&s", "cuisine": "Congolese", "decsription":"pounded cassava or plantains served with goat stew", "waiting": 10},
-    #          {"name": "Poulet a la Braise", "price": 1250, "image_url": "https://warehouse.canal-overseas.com/content/0001/09/c371caca888fd57c81891893298e263618393ed9.jpeg", "cuisine": "Congolese", "decsription":"Chicken Marinated in a blend of spices grilled over an open flame.", "waiting": 12}
-    #      ],
-    #      "Dessert": [
-    #           {"name": "Chin Chin", "price": 400, "image_url": "https://www.mydiasporakitchen.com/wp-content/uploads/2021/04/5B32CC1A-7B2F-4283-B22B-F90FADE6F21B.jpeg", "cuisine": "Congolese", "decsription":"Sweet crucnhy fried dough", "waiting": 5},
-    #           {"name": "Koko", "price": 400, "image_url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhrntoJxHTM-_TyJiEo9uaEi461VFgnj9HSdfDcpQIsOcxrYNBJdTFDAEjbM_MgBAcenihg6bORHvtf1kVLBWL398MeMlARbm-xrO3sGTZrJlZoc9DzxH3kwZWeti2PfU6m1EYh0XS8irUO/s1600/P1060866.JPG", "cuisine": "Congolese", "decsription":"Sweet smooth porridge, flavoured with vanilla or coconut milk", "waiting": 5}
-    #      ],
-    #      "Drinks": [
-    #          {"name": "Palm wine", "price": 700, "image_url": "https://i0.wp.com/greenviewsresidential.com/wp-content/uploads/2023/04/palm-wine-in-ghanaian-culture.webp?resize=1080%2C608&ssl=1", "cuisine": "Congolese", "decsription":"Traditional alcoholic beverage made from sap of palm trees", "waiting": 17},
-    #          {"name": "Jus de Bissap", "price": 650, "image_url": "https://cuisinedecheznous.net/wp-content/uploads/2022/03/bissap-du-retour.jpg", "cuisine": "Congolese", "decsription":"Sweet tangy drink made from hibiscus flowers", "waiting": 15}
-    #      ],
-    #      "Snacks": [
-    #          {"name": "Kanda", "price": 300, "image_url": "https://spotcovery.com/wp-content/uploads/2023/09/Kanda-Ti-Nyma-500x417.jpg", "cuisine": "Congolese", "decsription":"Savory meatballs", "waiting": 5},
-    #          {"name": "Baked Yams", "price": 200, "image_url": "https://thenaturalnurturer.com/wp-content/uploads/2023/04/Oven-Baked-Sweet-Potatoes-24.jpg", "cuisine": "Congolese", "decsription":"Boiled and baked yams served with a special sauce", "waiting": 10}
-    #      ]
-    #  }
-    # },
-
-    # {"name": "Derwish Restaurant", "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-gi_e54_jQoxpKq98MR0GEnMOLVTB26scFw&s",
-    #  "menus": {
-    #      "Starter": [
-    #          {"name": "Meze", "price": 500, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyiU1jHw2RDFBugpbjMlFIYyprwOTBWdoh5w&s", "cuisine": "Turkish", "decsription":"Appetizer served with bread", "waiting": 5},
-    #          {"name": "Sigara Böreği", "price": 450, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQt890JxIGSO1B3GEbsTXxVvAlcz1KL6zmSjg&s", "cuisine": "Turkish", "decsription":"Crisp pastry rolla", "waiting": 4}
-    #      ],
-    #      "Main Course": [
-    #          {"name": "Kebab", "price": 3200, "image_url": "https://cookingorgeous.com/wp-content/uploads/2021/06/lamb-shish-kebab-20.jpg", "cuisine": "Turkish", "description": "Grilled meat on a Skewer", "waiting": 20},
-    #          {"name": "Lahmacun", "price": 1100, "image_url": "https://cdn77-s3.lazycatkitchen.com/wp-content/uploads/2021/03/vegan-turkish-pizza-lahmacun-1000x1500.jpg", "cuisine": "Turkish", "decsription":"Turkish pizza", "waiting": 30},
-    #          {"name": "Manti", "price": 1250, "image_url": "https://www.panningtheglobe.com/wp-content/uploads/2013/11/turkish-manti-web-final.jpg", "cuisine": "Turkish", "decsription":"Turkish dumplings filled with mined meat", "waiting": 20}
-    #      ],
-    #      "Dessert": [
-    #           {"name": "Kunefe", "price": 800, "image_url": "https://gastronomytours.com/wp-content/uploads/2023/09/kiounefe-com-600x377.jpg", "cuisine": "Turkish", "decsription":"Sweetened cheese and pastry", "waiting": 25},
-    #           {"name": "Baklava", "price": 950, "image_url": "https://cleobuttera.com/wp-content/uploads/2018/03/lifted-baklava-720x540.jpg", "cuisine": "Turkish", "decsription":"layers of thin flaky pastries with crushed pistachios", "waiting": 20}
-    #      ],
-    #      "Kids Menu": [
-    #          {"name": "Ayran", "price": 700, "image_url": "https://bakkali.app/cdn/shop/articles/Ayran1-be64bf78.jpg?v=1713563298&width=1600", "cuisine": "Turkish", "decsription":"Sweet refreshing yoghurt drink", "waiting": 8},
-    #          {"name": "Kofte", "price": 650, "image_url": "https://images.getrecipekit.com/20221019021205-ko-cc-88fte-20baharat-20kebabs.jpg?aspect_ratio=1:1&quality=90&", "cuisine": "Turkish", "decsription":"Flavourful meatballs", "waiting": 15}
-    #      ],
-    #      "Snacks": [
-    #          {"name": "Pide", "price": 700, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpNvQfvhwXJjYtP2MQHp_uk5fpyxdbN97j1g&s", "cuisine": "Turkish", "decsription":"Turkish flatbread ", "waiting": 17},
-    #          {"name": "Ezme", "price": 650, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqTe49bHJjFm6bqJ46NAQypam9U7yVs0-D3g&s", "cuisine": "Turkish", "decsription":"Sweet tangy salad made from tomatoes, onions, pepers and spices", "waiting": 15}
-    #      ],
-    #      "Drinks": [
-    #          {"name": "Turkish Coffee", "price": 300, "image_url": "https://livingthegourmet.com/wp-content/uploads/2021/03/Turkish-Coffee-Ibrik-9.jpg", "cuisine": "Turkish", "decsription":" ", "waiting": 5},
-    #          {"name": "Salgam", "price": 200, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiBJ4nMQSUZ9mnZjZLRMqjg4S-lU0VRxRsQQ&s", "cuisine": "Turkish", "decsription":" ", "waiting": 10}
-    #      ]
-    #  }
-    # },
-
-    # {"name": "Malasyian Bites", "image_url": "https://www.namesnack.com/images/namesnack-malaysian-restaurant-business-names-3264x2448-20200915.jpeg?crop=1:1,smart&width=1200&dpr=2",
-    #  "menus": {
-    #      "Starter": [
-    #          {"name": "Roti Canai", "price": 300, "image_url": "https://recipeguru.org/wp-content/uploads/2024/05/roti-canai-recipe.jpg", "cuisine": "Malasyian", "decsription":"Flatbread served with spicy meat", "waiting": 5},
-    #          {"name": "Satay", "price": 400, "image_url": "https://www.elmundoeats.com/wp-content/uploads/2024/07/Malaysian-chicken-satay-with-peanut-sauce.jpg", "cuisine": "Malasyian", "decsription":"Skewered meat", "waiting": 4}
-    #      ],
-    #      "Main Course": [
-    #          {"name": "Laska", "price": 680, "image_url": "https://photos.bigoven.com/recipe/hero/chicken-laska-soup-98a9e4.jpg", "cuisine": "Malasyian", "description": "Foodie Eats", "waiting": 20},
-    #          {"name": "Mee Goreng", "price": 1800, "image_url": "https://www.kitchensanctuary.com/wp-content/uploads/2014/06/Mee-goreng-square-FS-20.jpg", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 10},
-    #          {"name": "Nasi Lemak", "price": 1450, "image_url": "https://www.elmundoeats.com/wp-content/uploads/2021/02/FP-Nasi-lemak-with-all-its-trimmings.jpg", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 12}
-    #      ],
-    #      "Dessert": [
-    #           {"name": "Pisang Goreng", "price": 300, "image_url": "https://munchmalaysia.com/wp-content/uploads/2023/06/PisangGoreng_Ajinomoto.jpg", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 5},
-    #           {"name": "Kuih", "price": 450, "image_url": "https://media.istockphoto.com/id/518885498/photo/malaysia-popular-assorted-sweet-dessert-or-known-as-kuih-kueh.jpg?s=612x612&w=0&k=20&c=481Pt0DO7IjFfRKBtXeN03RE1ZZfak3F_8UPnpFGKmM=", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 5}
-    #      ],
-    #      "Kids Menu": [
-    #          {"name": "Roti Dhal", "price": 700, "image_url": "https://i.imgur.com/R3SSwgl.jpg", "cuisine": "Malasyian", "decsription":"foodie eats", "waiting": 8},
-    #          {"name": "Pineapple rice", "price": 450, "image_url": "https://thai-foodie.com/wp-content/uploads/2024/04/pineapple-fried-rice.jpg", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 5}
-    #      ],
-    #      "Snacks": [
-    #          {"name": "Murtabak", "price": 400, "image_url": "https://www.elmundoeats.com/wp-content/uploads/2021/04/FP-Whole-and-sliced-chicken-murtabak-flatbreads-stacked.jpg", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 17},
-    #          {"name": "Curry puff", "price": 650, "image_url": "https://www.vegkit.com/wp-content/uploads/sites/2/2021/12/25078_ThaiCurryPuffs_detail.jpg", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 15}
-    #      ],
-    #      "Drinks": [
-    #          {"name": "Teh Tarik", "price": 300, "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRG2Sa-ENiEOGvjAnh_asO3BYgtaNrqT3XHag&s", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 5},
-    #          {"name": "Air Mata Kucing", "price": 200, "image_url": "https://img.freepik.com/premium-photo/air-mata-kucing-is-famous-malaysian-drinks-juadah-ramadan-made-from-dried-longan-lo-han-kuo_581937-5181.jpg", "cuisine": "Malasyian", "decsription":"Foodie eats", "waiting": 10}
-    #      ]
-    #  }
-    # },
-
-    # {"name": "Kabudas Eats", "image_url": "https://www.nairobinationalparkkenya.com/wp-content/uploads/2024/02/132045025_1575383172669460_8723750846461443503_o-573305f0836c4744a37867458d78e888-750x450.jpg",
-    #  "menus": {
-    #      "Starter": [
-    #          {"name": "Chilli prawns", "price": 500, "image_url": "https://www.marionskitchen.com/wp-content/uploads/2019/05/Sichuan-Chilli-Prawns3-1200x1500.jpg", "cuisine": "Swahili", "decsription":"Marinated shrimp served with a tangy sauce", "waiting": 5},
-    #          {"name": "Samosa", "price": 450, "image_url": "https://i.pinimg.com/736x/ed/a0/ed/eda0ed6d360b4f3403b93083b165a3e3.jpg", "cuisine": "Swahili", "decsription":"Deeps fried round potateos dipped in a buttery sauce", "waiting": 4}
-    #      ],
-    #      "Main Course": [
-    #          {"name": "Pilau", "price": 900, "image_url": "https://img-global.cpcdn.com/recipes/e16e61be3886271d/1200x630cq70/photo.jpg", "cuisine": "Swahili", "description": "Rice dish made ith spices and meat(Beef or Goat)", "waiting": 20},
-    #          {"name": "Biryani", "price": 800, "image_url": "https://www.pavaniskitchen.com/wp-content/uploads/2021/02/chbiryani.jpg", "cuisine": "Swahili", "decsription":"Richer than pilau, made with basmati rice and chicken", "waiting": 20},
-    #          {"name": "Nyama Choma", "price": 1500, "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Nyama_Choma_%28BBQ_the_Kenyan_way%29.jpg", "cuisine": "Swahili", "decsription":"Grilled meat typically goat, served with Ugali and kachumbari", "waiting": 30}
-    #      ],
-    #      "Dessert": [
-    #           {"name": "Coconut Milk Pudding", "price": 300, "image_url": "https://thenovicechefblog.com/wp-content/uploads/2024/04/Coconut-Rice-Pudding-Recipe.jpeg", "cuisine": "Swahili", "decsription":"Mixture of fruits", "waiting": 5},
-    #           {"name": "Tropical Fruit salad", "price": 450, "image_url": "https://www.momontimeout.com/wp-content/uploads/2016/05/tropical-fruit-salad-squared.jpeg", "cuisine": "Swahili", "decsription":"Creamy dessert made from coconut milk, sugar and cornstarch", "waiting": 5}
-    #      ],
-    #      "Kids Menu": [
-    #          {"name": "Mahamri", "price": 400, "image_url": "https://img-global.cpcdn.com/recipes/04a5574be74c325d/400x400cq70/photo.jpg", "cuisine": "Swahili", "decsription":"Sweet coconut pastry", "waiting": 8},
-    #          {"name": "Keki ya nazi", "price": 450, "image_url": "https://tatyanaseverydayfood.com/wp-content/uploads/2019/03/Coconut-Italian-Wedding-Cake-recipe-2.jpg", "cuisine": "Swahili", "decsription":"Moist coconut cake", "waiting": 5}
-    #      ],
-    #      "Snacks": [
-    #          {"name": "Coconut sweets", "price": 300, "image_url": "https://spicesnflavors.com/wp-content/uploads/2017/09/rose-ladoo-1-min.jpg", "cuisine": "Swahili", "decsription":"Made from granulated sugar and water and grated coconut", "waiting": 17},
-    #          {"name": "Kaimati", "price": 350, "image_url": "https://cdn.tuko.co.ke/images/1120/dfb65538fc34618d.jpeg?v=1", "cuisine": "Swahili", "decsription":"Sweet coconut pastry coated with sugar", "waiting": 15}
-    #      ],
-    #      "Drinks": [
-    #          {"name": "Coconut water", "price": 300, "image_url": "https://i.ndtvimg.com/i/2017-09/coconut-water_650x400_71506595070.jpg?q=50", "cuisine": "Swahili", "decsription":"Water from the Coconut", "waiting": 5},
-    #          {"name": "Coconut Tea", "price": 300, "image_url": "https://shoplakeandoak.com/cdn/shop/products/324066774_6155085464588219_2238385368481884744_n.jpg?v=1673988656", "cuisine": "Swahili", "decsription":"Tea made with Coconut milk", "waiting": 10}
-    #      ]
-    #  }
-    # },
 ]
 
 
@@ -369,12 +202,6 @@ with app.app_context():
         {"name": "Lucy Wanjiru", "email": "lucy.wanjiru@example.com", "password": "owner04", "role": "Owner"},
         {"name": "John Odhiambo", "email": "john.odhiambo@example.com", "password": "owner05", "role": "Owner"},
         {"name": "Esther Njeri", "email": "esther.njeri@example.com", "password": "owner06", "role": "Owner"},
-        # {"name": "Michael Otieno", "email": "michael.otieno@example.com", "password": "owner07", "role": "Owner"},
-        # {"name": "Grace Achieng", "email": "grace.achieng@example.com", "password": "owner08", "role": "Owner"},
-        # {"name": "Daniel Ouma", "email": "daniel.ouma@example.com", "password": "owner09", "role": "Owner"},
-        # {"name": "Caroline Wairimu", "email": "caroline.wairimu@example.com", "password": "owner010", "role": "Owner"},
-        # {"name": "Robert Mutua", "email": "robert.mutua@example.com", "password": "owner011", "role": "Owner"},
-        # {"name": "Ann Nyambura", "email": "ann.nyambura@example.com", "password": "owner012", "role": "Owner"},
     ]
 
     for owner in owners:
@@ -382,7 +209,6 @@ with app.app_context():
 
     owner_users = [User(**owner) for owner in owners]
     db.session.add_all(owner_users)
-
     for _ in range(NUM_CUSTOMERS):
         user_data.append({
             "name": fake.name(),
@@ -390,6 +216,7 @@ with app.app_context():
             "password": generate_password_hash("customer123"),
             "role": "Customer"
         })
+
 
     customer_users = [User(**data) for data in user_data]
     db.session.add_all(customer_users)
@@ -399,13 +226,13 @@ with app.app_context():
     owners = User.query.filter_by(role='Owner').all()
     customers = User.query.filter_by(role='Customer').all()
 
+
     print(f"✅ {owners} Owners and {NUM_CUSTOMERS} Customers added successfully!")
 
 
 # Fetch owners from the database after insertion
     owners = User.query.filter_by(role='Owner').all()
 
-    # Assign each outlet to a unique owner
     for index, outlet in enumerate(outlet_data): 
         owner_index = index % len(owners)
         owner = owners[owner_index]
@@ -435,6 +262,7 @@ with app.app_context():
 
         for category, items in outlet_dict["menus"].items():
             for menu_item in items:
+
                 description = menu_item.get("description", "No description available")
                 menu_item_db = MenuItem(
                     name=menu_item["name"],
@@ -443,6 +271,7 @@ with app.app_context():
                     cuisine=menu_item["cuisine"],
                     category=category,
                     description=description,
+
                     waiting=menu_item["waiting"],
                     outlet_id=outlet.id
                 )
@@ -454,12 +283,13 @@ with app.app_context():
         print(f"✅ {len(menu_items)} menu items successfully inserted!")
     else:
         print("❌ No menu items were added! Check outlet_data.")
+
         
     orders = []
     order_count = 0
     # MAX_ORDERS = 20  # Set max orders limit
 
-    random.shuffle(customers)  # Shuffle customers for randomness
+    random.shuffle(customers)
 
     for customer in customers:
         if order_count >= MAX_ORDERS:
@@ -490,7 +320,6 @@ with app.app_context():
                 
                 total_price += item_price  # Accumulate total order price
             
-            # Create Order instance
             order = Order(
                 customer_id=customer.id,
                 outlet_id=random.choice(outlets).id,
@@ -504,6 +333,7 @@ with app.app_context():
 
     db.session.add_all(orders)
     db.session.commit()
+
     print(f"✅ Database seeded successfully with {len(orders)} Orders!")
 
 
@@ -522,7 +352,7 @@ with app.app_context():
         while table_number in booked_tables:  # Ensure unique booked tables
             table_number = random.randint(1, 20)
 
-        booked_tables.add(table_number)  # Mark table as booked
+        booked_tables.add(table_number) 
 
         booking = TableBooking(
             customer_id=random.choice(customers).id,  # Assuming `customers` list exists
@@ -535,6 +365,7 @@ with app.app_context():
     db.session.add_all(bookings)
     db.session.commit()
 
+
     # Get available tables (Tables 1-20 that are NOT in booked_tables)
     all_tables = set(range(1, 21))
     available_tables = list(all_tables - booked_tables)
@@ -543,6 +374,7 @@ with app.app_context():
 
     
     print("✅ Database successfully seeded with Table Booking data!")
+
 
 
     

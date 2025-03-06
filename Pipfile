@@ -17,7 +17,11 @@ marshmallow-sqlalchemy = "*"
 faker = "*"
 flask-jwt-extended = "*"
 flask-socketio = "*"
+
 eventlet = "*"
+
+faker = "*"
+
 
 [dev-packages]
 
