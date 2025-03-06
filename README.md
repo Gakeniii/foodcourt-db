@@ -1,10 +1,8 @@
 ## FOODIE.EATS backend phase5-Final Project
 This repository has the backend code for the phase 5 final project. 
 ## Backend developers
-[George Yegon] (https://github.com/georgeyegon)
-
-
-[Sifa Gakeni] (https://github.com/Gakeniii)
+- [George Yegon](https://github.com/georgeyegon) <br>
+- [Sifa Gakeni](https://github.com/Gakeniii)
 ## Postgresql
 For the database, our group used Postgres which was a requirement to host our data for the app.<br>
 We also used Flask for the tables and relationships as well.
