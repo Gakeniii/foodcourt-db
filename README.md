@@ -10,24 +10,6 @@ We also used Flask for the tables and relationships as well.
 
 We used NeonDB to host our postgres since renders free version was expiring and it made the app faster and a better UI/UX for the user.
 
-`pipenv install; pipenv shell`
-
-running the migrations
-
-`flask db init`
-
-`flask db migrate -m "Recreated migrations"`
-
-`flask db upgrade`
-
-run the seed data
-`python seed.py` <br>
-change the database from the database URI to sqlite://db
-
-
-and start the server
-
-`flask run`
 ## Endpoints
   - User endpoints use Postman to insert the Authorization and access keys - /users /users/:id
   - Outlet endpoints - /outlets /outlet/:id
