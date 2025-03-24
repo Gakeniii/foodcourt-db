@@ -13,6 +13,8 @@ Flask-Migrate==4.1.0
 Flask-RESTful==0.3.10
 Flask-SocketIO==5.5.1
 Flask-SQLAlchemy==3.1.1
+gevent==24.2.1
+gevent-websocket==0.10.1
 greenlet==3.1.1
 gunicorn==23.0.0
 h11==0.14.0
@@ -40,3 +42,5 @@ typing_extensions==4.12.2
 Werkzeug==3.0.6
 wsproto==1.2.0
 zipp==3.20.2
+zope.event==5.0
+zope.interface==7.2
