@@ -20,7 +20,7 @@ from flask_jwt_extended import (
 
 load_dotenv()
 
-from models import db, User, OwnerMenu, Outlet, MenuItem, Order, TableBooking
+from models import db, User, Outlet, MenuItem, Order, TableBooking
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')

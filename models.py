@@ -214,10 +214,10 @@ class TableBooking(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    table_number = db.Column(db.Integer, nullable=False)  
+    table_number = db.Column(db.Integer, nullable=False)
     booking_time = db.Column(db.DateTime, nullable=False)
-    created_at = db.Column(db.DateTime, default=func.now())  
-    available = db.Column(db.Boolean, default=True)  
+    created_at = db.Column(db.DateTime, default=func.now())
+    available = db.Column(db.Boolean, default=True)
 
     customer = db.relationship('User', back_populates='bookings')
     orders = db.relationship('Order', back_populates='table_booking', overlaps="orders")

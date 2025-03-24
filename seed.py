@@ -358,23 +358,13 @@ with app.app_context():
 
     fake = Faker()
 
-    NUM_CUSTOMERS = 5
-    MAX_ORDERS = 5
+    NUM_CUSTOMERS = 3
+    MAX_ORDERS = 3
 
     user_data = []
     owners = [
-        {"name": "James Karanja", "email": "james.karanja@example.com", "password": "owner01", "role": "Owner"},
-        {"name": "Susan Mwangi", "email": "susan.mwangi@example.com", "password": "owner02", "role": "Owner"},
+
         {"name": "David Kimani", "email": "david.kimani@example.com", "password": "owner03", "role": "Owner"},
-        {"name": "Lucy Wanjiru", "email": "lucy.wanjiru@example.com", "password": "owner04", "role": "Owner"},
-        {"name": "John Odhiambo", "email": "john.odhiambo@example.com", "password": "owner05", "role": "Owner"},
-        {"name": "Esther Njeri", "email": "esther.njeri@example.com", "password": "owner06", "role": "Owner"},
-        # {"name": "Michael Otieno", "email": "michael.otieno@example.com", "password": "owner07", "role": "Owner"},
-        # {"name": "Grace Achieng", "email": "grace.achieng@example.com", "password": "owner08", "role": "Owner"},
-        # {"name": "Daniel Ouma", "email": "daniel.ouma@example.com", "password": "owner09", "role": "Owner"},
-        # {"name": "Caroline Wairimu", "email": "caroline.wairimu@example.com", "password": "owner010", "role": "Owner"},
-        # {"name": "Robert Mutua", "email": "robert.mutua@example.com", "password": "owner011", "role": "Owner"},
-        # {"name": "Ann Nyambura", "email": "ann.nyambura@example.com", "password": "owner012", "role": "Owner"},
     ]
 
     for owner in owners:
