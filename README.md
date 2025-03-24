@@ -8,8 +8,7 @@ For the database, our group used Postgres which was a requirement to host our da
 We also used Flask for the tables and relationships as well.
 
 
-Just in case the app stops fetching, know it is because our free subscription for Postgres on Render comes to an end on the 19th of MARCH.<br>
-If that happens feel free to run the app locally on your machine, by cloning the repository and installing the virtual environment
+We used NeonDB to host our postgres since renders free version was expiring and it made the app faster and a better UI/UX for the user.
 
 `pipenv install; pipenv shell`
 
