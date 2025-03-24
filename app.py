@@ -60,7 +60,6 @@ def handle_preflight():
         return response
 
 
-
 class UserResource(Resource):
     @jwt_required()
     def get(self, user_id=None):
@@ -96,6 +95,42 @@ class UserResource(Resource):
             ]
         elif user.role == 'Customer':
             user_data.update({
+                {"id": user.id, "name": user.name, "role": user.role}
+                for user in users
+            ])
+
+
+        user = User.query.get(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
+
+        if user.role == 'Owner':
+            return jsonify({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'role': user.role,
+                'outlets': [
+                    {
+                        'id': outlet.id,
+                        'name': outlet.name,
+                        'menu_items': [
+                            {'id': item.id, 'name': item.name, 'price': item.price}
+                            for item in outlet.menu_items
+                        ]
+                    } for outlet in user.outlets
+                ]
+            })
+
+        elif user.role == 'Customer':
+            all_outlets = Outlet.query.all()
+            return jsonify({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'password': user.password,
+                'role': user.role,
+
                 'orders': [
                     {'id': order.id, 'status': order.status}
                     for order in user.orders
@@ -104,6 +139,25 @@ class UserResource(Resource):
             })
 
         return jsonify(user_data)
+                'bookings': [
+                    {'id': booking.id, 'table_number': booking.table_number}
+                    for booking in user.bookings
+                ]
+            })
+
+    def post(self):
+        data = request.get_json()
+        user = User(**data)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({
+            
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'role': user.role
+            })
+
 
     @jwt_required()
     def patch(self, user_id):
@@ -198,6 +252,7 @@ class OutletResource(Resource):
 
             outlet_list = []
             for outlet in outlets:
+
                 cuisines = list(set(item.cuisine for item in outlet.menu_items))
 
                 if cuisine_filter and cuisine_filter not in cuisines:
@@ -287,6 +342,8 @@ class OutletResource(Resource):
             'name': outlet.name,
             'owner_id': outlet.owner_id,
         }, 201
+            'owner_name': outlet.owner.name if outlet.owner and outlet.owner.role == 'Owner' else None
+        })
     
     def patch(self, outlet_id):
         outlet = Outlet.query.get_or_404(outlet_id)
@@ -358,6 +415,12 @@ class MenuItemResource(Resource):
             outlet = Outlet.query.get(data['outlet_id'])
             if not outlet:
                 return {"error": "Outlet not found"}, 404
+
+            owner_menu = OwnerMenu.query.filter_by(outlet_id=outlet.id).first()
+
+            if not owner_menu:
+                return {"error": "Owner menu not found for this outlet"}, 404
+
             
             menu_item = MenuItem(
                 name=data['name'],
@@ -452,11 +515,12 @@ class OrderResource(Resource):
             "total_price": new_order.total_price
         }, 201
 
-
     def patch(self, order_id):
-        order = Order.query.get_or_404(order_id)
-        data = request.get_json()
+        order = Order.query.get(order_id)
+        if not order:
+            return {'message': 'Order not found'}, 404
 
+        data = request.get_json()
         if "order_items" in data:
             order.order_items = []
             total_price = 0
@@ -477,11 +541,14 @@ class OrderResource(Resource):
 
         db.session.commit()
         return jsonify({"message": "Order updated successfully", "updated_order": order.to_dict()})
-    
     def delete(self, order_id):
-        order = Order.query.get_or_404(order_id)
+        order = Order.query.get(order_id)
+        if not order:
+            return {'message': 'Order not found'}, 404
+
         db.session.delete(order)
         db.session.commit()
+
         return jsonify({"message": "Order deleted successfully"})
 
 api.add_resource(OrderResource, '/orders', '/orders/<int:order_id>')
@@ -503,6 +570,7 @@ class UpdateOrderStatusResource(Resource):
         return {"message": "Order status updated", "status": new_status}, 200
     
 api.add_resource(UpdateOrderStatusResource, "/orders/<int:order_id>")
+
 
 class TableBookingResource(Resource):
     def get(self, booking_id=None):
@@ -540,6 +608,16 @@ class TableBookingResource(Resource):
             'created_at': booking.created_at.strftime("%Y-%m-%d %H:%M:%S") if booking.created_at else None,
             'availability': booking.available 
         })
+
+    def get_available_tables(self):
+        available_tables = TableBooking.query.filter_by(availability=True).all()
+        return jsonify([
+            {
+                'id': table.id,
+                'table_number': table.table_number,
+                'availability': table.available
+            } for table in available_tables
+        ])
 
     @jwt_required()
     @cross_origin() 
@@ -582,6 +660,7 @@ class TableBookingResource(Resource):
             data['booking_time'] = booking_time
 
         except ValueError:
+
             return {"error": "Invalid date format. Use YYYY-MM-DDTHH:MM:SS or include timezone"}, 400
 
         booking = TableBooking(
@@ -594,7 +673,6 @@ class TableBookingResource(Resource):
         db.session.add(booking)
         db.session.commit()
         print("Received booking request data:", request.get_json())
-
 
         return {
             'message': 'Table booking created successfully',
@@ -623,108 +701,12 @@ class UnbookedTablesResource(Resource):
 
             return jsonify({"unbooked_tables": list(unbooked_tables)})
 
+
         except Exception as e:
             return {"error": str(e)}, 500
 
-
 api.add_resource(UnbookedTablesResource, '/available', endpoint="available")
 
-
-
-# class OwnerMenuResource(Resource):
-#     def get(self):
-#         menus = MenuItem.query.all()
-#         return jsonify([menu.to_dict() for menu in menus])
-
-#     def post(self):
-#         data = request.get_json()
-
-#         if 'outlet_id' not in data or data['outlet_id'] is None:
-#             return {"error": "Outlet ID is required"}, 400
-#         if 'waiting' not in data or data['waiting'] is None:
-#             return {"error": "Waiting time is required"}, 400
-
-#         try:
-#             data['price'] = int(data['price'])
-#             data['waiting'] = int(data['waiting'])  # Ensure waiting is an integer
-
-#             outlet = Outlet.query.get(data['outlet_id'])
-#             if not outlet:
-#                 return {"error": "Outlet not found"}, 404
-
-#             menu_item = MenuItem(
-#                 name=data['name'],
-#                 image_url=data.get('image_url'),
-#                 price=data['price'],  
-#                 cuisine=data['cuisine'],
-#                 category=data.get('category'),
-#                 description=data.get('description'),
-#                 waiting=data['waiting'],  # Ensure it has a valid value
-#                 outlet_id=data['outlet_id'],
-#                 owner_menu_id=data.get('owner_menu_id')  # Optional but should be valid if provided
-#             )
-
-#             db.session.add(menu_item)
-#             db.session.commit()
-
-#             return {"message": "Menu item created successfully", "id": menu_item.id}, 201
-
-#         except ValueError:
-#             return {"error": "Invalid price or waiting format. Must be a whole number."}, 400
-#         except Exception as e:
-#             db.session.rollback()
-#             return {"error": str(e)}, 500
-
-
-# class SingleOwnerMenuResource(Resource):
-#     def get(self, menu_id):
-#         menu = MenuItem.query.get(menu_id)
-#         if not menu:
-#             return {"message": "Menu item not found"}, 404
-#         return jsonify(menu.to_dict())
-
-#     def patch(self, menu_id):
-#         menu = MenuItem.query.get(menu_id)
-#         if not menu:
-#             return {"message": "Menu item not found"}, 404
-
-#         data = request.get_json()
-
-#         menu.name = data.get('name', menu.name)
-#         menu.price = data.get('price', menu.price)
-#         menu.image_url = data.get('image_url', menu.image_url)
-#         menu.cuisine = data.get('cuisine', menu.cuisine)
-#         menu.category = data.get('category', menu.category)
-#         menu.waiting = data.get('waiting', menu.waiting)
-
-#         db.session.commit()
-
-#         menu_item = MenuItem.query.filter_by(owner_menu_id=menu.id).first()
-#         if menu_item:
-#             menu_item.name = menu.name
-#             menu_item.price = menu.price
-#             menu_item.image_url = menu.image_url
-#             menu_item.cuisine = menu.cuisine
-#             menu_item.category = menu.category
-#             db.session.commit()
-
-#         return {"message": "Menu item updated successfully", "menu": menu.to_dict()}
-
-#     def delete(self, menu_id):
-#         menu = MenuItem.query.get(menu_id)
-#         if not menu:
-#             return {"message": "Menu item not found"}, 404
-
-#         db.session.delete(menu)
-#         db.session.commit()
-
-#         MenuItem.query.filter_by(owner_menu_id=menu_id).delete()
-#         db.session.commit()
-
-#         return {"message": "Menu item deleted successfully"}, 200
-    
-# api.add_resource(OwnerMenuResource,'/ownermenu')
-# api.add_resource(SingleOwnerMenuResource,'/ownermenu/<int:menu_id>')
 
 if __name__ == "__main__":
     socketio.run(app, debug=True, host="0.0.0.0", port=5000)

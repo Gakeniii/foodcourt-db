@@ -372,7 +372,6 @@ with app.app_context():
 
     owner_users = [User(**owner) for owner in owners]
     db.session.add_all(owner_users)
-
     for _ in range(NUM_CUSTOMERS):
         user_data.append({
             "name": fake.name(),
@@ -380,6 +379,7 @@ with app.app_context():
             "password": generate_password_hash("customer123"),
             "role": "Customer"
         })
+
 
     customer_users = [User(**data) for data in user_data]
     db.session.add_all(customer_users)
